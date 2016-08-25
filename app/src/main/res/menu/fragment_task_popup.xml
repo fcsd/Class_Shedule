@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <item
+        android:id="@+id/sort_by_group"
+        android:showAsAction="ifRoom|withText"
+        android:title="Сортувати за групами"
+        android:visible="true"/>
+
+    <item
+        android:id="@+id/sort_by_subject"
+        android:showAsAction="ifRoom|withText"
+        android:title="Сортувати за предметом"
+        android:visible="true"/>
+
+</menu>

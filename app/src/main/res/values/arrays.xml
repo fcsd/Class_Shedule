@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="weeks">
+        <item>1-ий тиждень</item>
+        <item>2-ий тиждень</item>
+    </string-array>
+
+    <string-array name="save">
+        <item>Зберегти як розклад моєї групи</item>
+        <item>Зберегти як додаткові групи</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/my_schedule_save"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/save_my_group"
+        android:visible="true"/>
+    <item
+        android:id="@+id/other_schedule_save"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/save_other_group"
+        android:visible="true"/>
+
+</menu>

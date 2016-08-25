@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/schedule_update"
+        android:showAsAction="ifRoom|withText"
+        android:title="Оновити розклад"
+        android:visible="true"/>
+    <item
+        android:id="@+id/schedule_edit"
+        android:showAsAction="ifRoom|withText"
+        android:title="Редагувати розклад"
+        android:visible="true"/>
+
+    <item
+        android:id="@+id/schedule_delete"
+        android:showAsAction="ifRoom|withText"
+        android:title="Видалити розклад"
+        android:visible="true"/>
+
+</menu>

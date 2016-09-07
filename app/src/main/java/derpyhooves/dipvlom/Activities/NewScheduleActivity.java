@@ -39,7 +39,7 @@ public class NewScheduleActivity extends AppCompatActivity {
     private int DayPosition;
     private String Subject;
     private String group;
-    private String House;
+    private String House = new String();
     private String type;
 
     private boolean isNewSubjectAdd = false;
@@ -86,33 +86,40 @@ public class NewScheduleActivity extends AppCompatActivity {
 
     private void temp_result()
     {
-        switch (WeekPosition)
-        {
-            case 0: // обе недели
-                allSchedule.set(TimePosition*16,toNormalTime(TimePosition)); // установка времени
-                allSchedule.set(TimePosition*16+DayPosition*3+1,Subject); // установка предмета
-                allSchedule.set(TimePosition*16+DayPosition*3+2,House); // установка аудитории
-                allSchedule.set(TimePosition*16+DayPosition*3+3,type); // установка типа занятий
-                allSchedule.set(96+TimePosition*16,toNormalTime(TimePosition)); // установка времени
-                allSchedule.set(96+TimePosition*16+DayPosition*3+1,Subject); // установка предмета
-                allSchedule.set(96+TimePosition*16+DayPosition*3+2,House); // установка аудитории
-                allSchedule.set(96+TimePosition*16+DayPosition*3+3,type); // установка типа занятий
-                break;
-            case 1: // первая неделя
-                allSchedule.set(TimePosition*16,toNormalTime(TimePosition)); // установка времени
-                allSchedule.set(TimePosition*16+DayPosition*3+1,Subject); // установка предмета
-                allSchedule.set(TimePosition*16+DayPosition*3+2,House); // установка аудитории
-                allSchedule.set(TimePosition*16+DayPosition*3+3,type); // установка типа занятий
-                break;
-            case 2: // вторая неделя
-                allSchedule.set(96+TimePosition*16,toNormalTime(TimePosition)); // установка времени
-                allSchedule.set(96+TimePosition*16+DayPosition*3+1,Subject); // установка предмета
-                allSchedule.set(96+TimePosition*16+DayPosition*3+2,House); // установка аудитории
-                allSchedule.set(96+TimePosition*16+DayPosition*3+3,type); // установка типа занятий
-                break;
+        if (House.isEmpty()) Toast.makeText(this, "Не була введена аудиторія. Проміжний розклад не буде збережений!", Toast.LENGTH_LONG).show();
+
+        else{
+
+            switch (WeekPosition)
+            {
+                case 0: // обе недели
+                    allSchedule.set(TimePosition*16,toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(TimePosition*16+DayPosition*3+1,Subject); // установка предмета
+                    allSchedule.set(TimePosition*16+DayPosition*3+2,House); // установка аудитории
+                    allSchedule.set(TimePosition*16+DayPosition*3+3,type); // установка типа занятий
+                    allSchedule.set(96+TimePosition*16,toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(96+TimePosition*16+DayPosition*3+1,Subject); // установка предмета
+                    allSchedule.set(96+TimePosition*16+DayPosition*3+2,House); // установка аудитории
+                    allSchedule.set(96+TimePosition*16+DayPosition*3+3,type); // установка типа занятий
+                    break;
+                case 1: // первая неделя
+                    allSchedule.set(TimePosition*16,toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(TimePosition*16+DayPosition*3+1,Subject); // установка предмета
+                    allSchedule.set(TimePosition*16+DayPosition*3+2,House); // установка аудитории
+                    allSchedule.set(TimePosition*16+DayPosition*3+3,type); // установка типа занятий
+                    break;
+                case 2: // вторая неделя
+                    allSchedule.set(96+TimePosition*16,toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(96+TimePosition*16+DayPosition*3+1,Subject); // установка предмета
+                    allSchedule.set(96+TimePosition*16+DayPosition*3+2,House); // установка аудитории
+                    allSchedule.set(96+TimePosition*16+DayPosition*3+3,type); // установка типа занятий
+                    break;
+            }
+            count++;
+            Toast.makeText(getBaseContext(), "Збережено " + count + " проміжних розкладів. Для остаточного збереження натисніть галочку у верхньом правому вікні!", Toast.LENGTH_SHORT).show();
+
         }
-        count++;
-        Toast.makeText(getBaseContext(), "Збережено " + count + " проміжних розкладів. Для остаточного збереження натисніть галочку у верхньом правому вікні!", Toast.LENGTH_SHORT).show();
+
     }
 
     private String toNormalTime(int time)
@@ -308,7 +315,6 @@ public class NewScheduleActivity extends AppCompatActivity {
         adapterForSubject.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         final Spinner forSubject = (Spinner) findViewById(R.id.spinner4);
 
-        final String[] newHouse = {new String()};
 
         forSubject.setAdapter(adapterForSubject);
 
@@ -334,6 +340,9 @@ public class NewScheduleActivity extends AppCompatActivity {
                     alertDialog.setView(input);
                     alertDialog.setTitle("Введіть аудиторію");
 
+
+                    final String[] newHouse = {new String()};
+
                     alertDialog.setPositiveButton("Додати",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
@@ -343,7 +352,6 @@ public class NewScheduleActivity extends AppCompatActivity {
 
                                     else{
                                         House=newHouse[0]+" "+getShortHouse(shmi.get(position));
-                                        int k=100;
                                     }
                                 }
                             });
@@ -562,9 +570,10 @@ public class NewScheduleActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.apply:
-                GroupActivity.saveArrayListToSP(this,allSchedule,group);
+
+                GroupActivity.saveArrayListToSP(this, allSchedule, group);
                 Toast.makeText(getBaseContext(), "Збереження успішне!", Toast.LENGTH_SHORT).show();
-                Intent intent=new Intent();
+                Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 this.finish();
                 return true;

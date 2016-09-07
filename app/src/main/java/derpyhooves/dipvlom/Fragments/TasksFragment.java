@@ -23,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.io.File;
 import java.net.URL;
@@ -48,6 +49,8 @@ public class TasksFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<String> tasks;
+
+    private ArrayList<String> keysOfGroups = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
     Activity parentActivity;
@@ -85,6 +88,8 @@ public class TasksFragment extends Fragment {
     {
         tasks= GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"listOfTasks");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Завдання");
+
+        keysOfGroups= GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"keysOfGroup");
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
         mLayoutManager = new LinearLayoutManager(getContext());
@@ -127,9 +132,11 @@ public class TasksFragment extends Fragment {
                     Paint paint = new Paint();
                     Bitmap bitmap;
 
+
+
                     if (dX < 0) { // swiping left
 
-                        bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.content_delete);
+                        bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.delete);
                         float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
                         c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
@@ -174,9 +181,14 @@ public class TasksFragment extends Fragment {
 
             case R.id.add_new_item:
 
-                Intent intent = new Intent(getActivity(), NewTaskActivity.class);
-                intent.putExtra("mode", 1);
-                getActivity().startActivityForResult(intent, REQUEST_SAVE_NEW_TASK);
+                if (!keysOfGroups.isEmpty())
+                {
+                    Intent intent = new Intent(getActivity(), NewTaskActivity.class);
+                    intent.putExtra("mode", 1);
+                    getActivity().startActivityForResult(intent, REQUEST_SAVE_NEW_TASK);
+                }
+                else Toast.makeText(getActivity(), "Жодна група не була зберена, додати завдання неможливо!", Toast.LENGTH_LONG).show();
+
                 return true;
 
             case R.id.sorting:

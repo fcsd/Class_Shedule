@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import derpyhooves.dipvlom.Adapters.RecyclerAdapter;
 import derpyhooves.dipvlom.Adapters.SectionedRecyclerViewAdapter;
@@ -51,6 +53,8 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
     private ArrayList[] savedNames = new ArrayList[19];
     private ArrayList[] savedLinks = new ArrayList[19];
+
+    private static final String ruNameRegEx = "[А-ЯЁ][-А-яЁё]+";
 
     private ArrayList<Integer> view = new ArrayList<>();
     DrawerLayout drawer;
@@ -467,11 +471,20 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         view.clear();
         view.add(0);
 
-        for (int i=1; i<data.size(); i++)
+        for (int i=0; i<data.size(); i++)
         {
             buf=data.get(i).toString();
             s = buf.split("-");
-            tmp[1]= String.valueOf(s[1].charAt(1));
+
+            Pattern p = Pattern.compile("[\\p{InCyrillic}]", Pattern.UNICODE_CASE);
+            Matcher m = p.matcher(s[1]);
+
+            while (m.find()) s[1]=s[1].substring(0,s[1].length()-1);
+
+            if (s[1].length()>2) tmp[1]= String.valueOf(s[1].charAt(2));
+            else tmp[1]= String.valueOf(s[1].charAt(1));
+      
+
             if ((tmp[0].compareTo(tmp[1]))==0) continue;
             tmp[0]=tmp[1];
             indexOfCourses.add(i);
@@ -479,7 +492,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
             int yearAdmision = Integer.parseInt(tmp[1]);
             if (currentYear < yearAdmision) currentYear+=10;
             currentCourse=currentYear-yearAdmision-1;
-            if (currentMonth>8) currentCourse++;
+            if (currentMonth>=8) currentCourse++;
             view.add(currentCourse);
         }
 

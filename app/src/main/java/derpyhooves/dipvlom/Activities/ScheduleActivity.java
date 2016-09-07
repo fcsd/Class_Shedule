@@ -62,6 +62,8 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     private ArrayList<String> thursday = new ArrayList<>();
     private ArrayList<String> friday = new ArrayList<>();
 
+    private ArrayList<String> tasks = new ArrayList<>();
+
     private boolean isCurrentGroupSaved = false;
 
     private MenuItem mSaveSchedule;
@@ -333,6 +335,21 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         if(group.contains(prefs.getString("myGroup", "defaultStringIfNothingFound"))) prefs.edit().remove("isMyGroupSaved").commit();
 
         isCurrentGroupSaved=false;
+
+        tasks= GroupActivity.restoreArrayListFromSP(this,"listOfTasks");
+        for (int i=0; i<tasks.size(); i+=4)
+        {
+            if (tasks.get(i).equals(group))
+            {
+                for (int j=0;j<4;j++)
+                {
+                    tasks.remove(i*4);
+                }
+                i-=4;
+            }
+        }
+        GroupActivity.saveArrayListToSP(this,tasks,"listOfTasks");
+
         Toast.makeText(this, "Розклад був успішно видален!", Toast.LENGTH_LONG).show();
 
         Intent intent=new Intent();
@@ -499,6 +516,7 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         else if (id == R.id.nav_manage) request=13;
         else if (id == R.id.nav_share) request=14;
         else if (id == R.id.nav_send) request=15;
+
 
         drawer.closeDrawer(GravityCompat.START);
         intent.putExtra("request", request);

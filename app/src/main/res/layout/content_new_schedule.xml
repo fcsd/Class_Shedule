@@ -1,203 +1,320 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true"> <!--IMPORTANT otherwise backgrnd img. will not fill the whole screen -->
+
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/parent_schedule"
+    >
 
-    <android.support.design.widget.AppBarLayout
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/toolbar_layout"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="match_parent"
+        android:id="@+id/new_schedule">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"/>
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
 
-    </android.support.design.widget.AppBarLayout>
+            android:text="Оберіть тиждень"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="62dp"
+            />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner"
+            android:text="Оберіть день"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text6"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
+
+        <Spinner
+            android:id="@+id/spinner6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text6"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
 
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner6"
+            android:text="Оберіть пару"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text2"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
+
+        <Spinner
+            android:id="@+id/spinner2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text2"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
+
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner2"
+            android:text="Оберіть предмет"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text3"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
+
+        <Spinner
+            android:id="@+id/spinner3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text3"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner3"
+            android:text="Оберіть аудиторію"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text4"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
+
+        <Spinner
+            android:id="@+id/spinner4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text4"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner4"
+            android:text="Оберіть тип заняття"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text5"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
+
+        <Spinner
+            android:id="@+id/spinner5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text5"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
+
+        <Button
+            android:id="@+id/temp_save"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/spinner5"
+            android:text="Зберегти проміжний розклад"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="11dp" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingLeft="10dp"
-        android:singleLine="true"
-        android:textAllCaps="true"
-        android:layout_below="@+id/toolbar_layout"
-        android:text="Оберіть тиждень"
-        android:background="@android:color/transparent"
-        android:textSize="18sp"
-        android:id="@+id/section_text"
-        android:textStyle="bold"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp" />
-
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/section_text"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="11dp"
-        android:textSize="18sp">
-
-    </Spinner>
-
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingLeft="10dp"
-        android:singleLine="true"
-        android:textAllCaps="true"
-        android:layout_below="@+id/spinner"
-        android:text="Оберіть день"
-        android:background="@android:color/transparent"
-        android:textSize="18sp"
-        android:id="@+id/section_text6"
-        android:textStyle="bold"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp" />
-
-    <Spinner
-        android:id="@+id/spinner6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/section_text6"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="11dp"
-        android:textSize="18sp">
-
-    </Spinner>
+        android:layout_height="match_parent"
+        android:id="@+id/delete_schedule">
 
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingLeft="10dp"
-        android:singleLine="true"
-        android:textAllCaps="true"
-        android:layout_below="@+id/spinner6"
-        android:text="Оберіть пару"
-        android:background="@android:color/transparent"
-        android:textSize="18sp"
-        android:id="@+id/section_text2"
-        android:textStyle="bold"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp" />
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
 
-    <Spinner
-        android:id="@+id/spinner2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/section_text2"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="11dp"
-        android:textSize="18sp">
+            android:text="Оберіть тиждень"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text10"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="62dp"
+            />
 
-    </Spinner>
+        <Spinner
+            android:id="@+id/spinner10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text10"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner10"
+            android:text="Оберіть день"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text11"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
+
+        <Spinner
+            android:id="@+id/spinner11"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text11"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
 
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingLeft="10dp"
-        android:singleLine="true"
-        android:textAllCaps="true"
-        android:layout_below="@+id/spinner2"
-        android:text="Оберіть предмет"
-        android:background="@android:color/transparent"
-        android:textSize="18sp"
-        android:id="@+id/section_text3"
-        android:textStyle="bold"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp" />
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner11"
+            android:text="Оберіть пару"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text12"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
 
-    <Spinner
-        android:id="@+id/spinner3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/section_text3"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="11dp"
-        android:textSize="18sp">
+        <Spinner
+            android:id="@+id/spinner12"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text12"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
 
-    </Spinner>
+        </Spinner>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingLeft="10dp"
-        android:singleLine="true"
-        android:textAllCaps="true"
-        android:layout_below="@+id/spinner3"
-        android:text="Оберіть аудиторію"
-        android:background="@android:color/transparent"
-        android:textSize="18sp"
-        android:id="@+id/section_text4"
-        android:textStyle="bold"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp" />
+        <Button
+            android:id="@+id/temp_delete"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/spinner12"
+            android:text="Видалити проміжний розклад"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="11dp" />
 
-    <Spinner
-        android:id="@+id/spinner4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/section_text4"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="11dp"
-        android:textSize="18sp">
-
-    </Spinner>
-
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingLeft="10dp"
-        android:singleLine="true"
-        android:textAllCaps="true"
-        android:layout_below="@+id/spinner4"
-        android:text="Оберіть тип заняття"
-        android:background="@android:color/transparent"
-        android:textSize="18sp"
-        android:id="@+id/section_text5"
-        android:textStyle="bold"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp" />
-
-    <Spinner
-        android:id="@+id/spinner5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/section_text5"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="11dp"
-        android:textSize="18sp">
-
-    </Spinner>
-
-    <Button
-        android:id="@+id/temp_save"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_below="@+id/spinner5"
-        android:text="Зберегти проміжний розклад"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="11dp" />
-
+        </RelativeLayout>
 
 </RelativeLayout>
+
+</ScrollView>
+
+
+

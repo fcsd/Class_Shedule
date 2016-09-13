@@ -42,7 +42,7 @@ import derpyhooves.dipvlom.Adapters.RecyclerAdapter;
 import derpyhooves.dipvlom.Adapters.jsoupAdapter;
 import derpyhooves.dipvlom.R;
 
-public class InfoTeacherActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class InfoTeacherActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, jsoupAdapter.AsyncResponse {
 
     private String TeacherName;
     private String TeacherLink;
@@ -90,9 +90,14 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
         {
             bitmap=decodeBase64(prefs.getString(TeacherName + " + img",null));
             TeacherInfo=GroupActivity.restoreArrayListFromSP(this,TeacherName);
+            showRecyclerView();
         }
         else showTeachers();
 
+    }
+
+    private void showRecyclerView()
+    {
         ImageView mImg;
         mImg = (ImageView) findViewById(R.id.imageView1);
         mImg.setImageBitmap(bitmap);
@@ -115,7 +120,6 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
             }}, spTeacherInfo);
 
         mRecyclerView.setAdapter(mAdapter);
-
     }
 
     private void getSpannableString(String str)
@@ -136,30 +140,8 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
     public void showTeachers() {
         if (GroupActivity.hasConnection(getApplicationContext())) {
 
-            jsoupAdapter mt = new jsoupAdapter(TeacherLink, 4);
-            try {
-                map = mt.execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            TeacherInfo = map.get(1);
-            TeacherPhoto = map.get(2);
-
-            bitmap=getBitmapFromURL(TeacherPhoto.get(0));
-
-            SharedPreferences prefs = getApplicationContext().getSharedPreferences("YourApp", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(TeacherName + " + img", encodeTobase64(bitmap));
-            editor.commit();
-
-            GroupActivity.saveArrayListToSP(getApplicationContext(),TeacherInfo,TeacherName);
-
-
-        /*PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(kathedra, kathedra).commit();
-        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherNames, String.valueOf(position + 1000)); */
+            jsoupAdapter mt = new jsoupAdapter(TeacherLink, 4, this, this);
+            mt.execute();
 
         }
         else Toast.makeText(this, "Немає з'єднання з інернетом!", Toast.LENGTH_LONG).show();
@@ -219,5 +201,23 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
         intent.putExtra("request", request);
         startActivity(intent);
         return true;
+    }
+
+    @Override
+    public void processFinish(Map<Integer, ArrayList<String>> map) {
+
+        TeacherInfo = map.get(1);
+        TeacherPhoto = map.get(2);
+
+        bitmap=getBitmapFromURL(TeacherPhoto.get(0));
+
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(TeacherName + " + img", encodeTobase64(bitmap));
+        editor.commit();
+
+        GroupActivity.saveArrayListToSP(getApplicationContext(),TeacherInfo,TeacherName);
+        showRecyclerView();
+
     }
 }

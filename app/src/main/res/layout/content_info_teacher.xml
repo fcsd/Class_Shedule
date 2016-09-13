@@ -20,11 +20,12 @@
 
     </android.support.design.widget.AppBarLayout>
 
+
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar_layout"
+        android:layout_marginTop="62dp"
         android:paddingTop="5dp"
         android:paddingLeft="10dp"
         android:layout_centerHorizontal="true"
@@ -41,5 +42,7 @@
         android:paddingTop="5dp"
         android:paddingRight="10dp"
         android:paddingBottom="5dp" />
+
+
 
 </RelativeLayout>

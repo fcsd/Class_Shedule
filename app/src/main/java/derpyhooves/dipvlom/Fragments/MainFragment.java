@@ -292,7 +292,7 @@ public class MainFragment extends Fragment {
             int yearAdmision = Integer.parseInt(buf);
             if (currentYear < yearAdmision) currentYear+=10;
             currentCourse=currentYear-yearAdmision;
-            if (currentMonth>8) currentCourse++;
+            if (currentMonth>=8) currentCourse++;
             String course=getStringCourse(currentCourse);
             // тип
             buf=type.get(i).toString();

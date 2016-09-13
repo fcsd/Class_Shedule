@@ -1,6 +1,5 @@
 package derpyhooves.dipvlom.Activities;
 
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,18 +7,14 @@ import android.net.Uri;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,17 +31,12 @@ import java.util.concurrent.ExecutionException;
 
 import derpyhooves.dipvlom.Adapters.PagerAdapter;
 import derpyhooves.dipvlom.Adapters.jsoupAdapter;
-import derpyhooves.dipvlom.Fragments.HousingFragment;
-import derpyhooves.dipvlom.Fragments.InfoFragment;
-import derpyhooves.dipvlom.Fragments.KHPIFragment;
-import derpyhooves.dipvlom.Fragments.KathedralFragment;
-import derpyhooves.dipvlom.Fragments.MainFragment;
 import derpyhooves.dipvlom.Fragments.ScheduleFragment;
-import derpyhooves.dipvlom.Fragments.TasksFragment;
 import derpyhooves.dipvlom.R;
 
+
 public class ScheduleActivity extends AppCompatActivity implements ScheduleFragment.OnFragmentInteractionListener,
-        AdapterView.OnItemSelectedListener, NavigationView.OnNavigationItemSelectedListener {
+        AdapterView.OnItemSelectedListener, NavigationView.OnNavigationItemSelectedListener, jsoupAdapter.AsyncResponse {
 
     private String group;
     private String link;
@@ -74,6 +64,16 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     DrawerLayout drawer;
 
     @Override
+    public void processFinish(Map<Integer, ArrayList<String>> map) {
+        scheduleForFirstWeek = map.get(1);
+        scheduleForSecondWeek = map.get(2);
+        type=map.get(3);
+        showSchedule(scheduleForFirstWeek);
+        setupViewPager();
+    }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -93,10 +93,15 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         }
         toggle.syncState();
 
-        Spinner mSpinner = new Spinner(getApplicationContext());
+        Spinner mSpinner = new Spinner(getSupportActionBar().getThemedContext());
         String[] frags = getResources().getStringArray(R.array.weeks);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, frags);
-        mSpinner.setAdapter(arrayAdapter);
+
+        ArrayAdapter mAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_dropdown_item, R.id.text1, frags);
+
+        mAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        mSpinner.setAdapter(mAdapter);
+        mSpinner.setSelection(0);
+
         mSpinner.setOnItemSelectedListener(this);
         toolbar.addView(mSpinner);
 
@@ -136,20 +141,12 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
 
     public void updateSchedule()
     {
+
         if(GroupActivity.hasConnection(this))
         {
-            jsoupAdapter mt = new jsoupAdapter(link, 2);
-            try {
-                map = mt.execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            jsoupAdapter mt = new jsoupAdapter(link, 2, this, this);
+            mt.execute();
 
-            scheduleForFirstWeek = map.get(1);
-            scheduleForSecondWeek = map.get(2);
-            type=map.get(3);
         }
         else Toast.makeText(this, "Нет соединения с интернетом!", Toast.LENGTH_LONG).show();
     }
@@ -203,6 +200,9 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
                         int indexOfUpdateSchedule=keysOfSavedSchedule.indexOf(group);
                         link= linksOfSavedSchedule.get(indexOfUpdateSchedule);
                         updateSchedule();
+                        showSchedule(scheduleForFirstWeek);
+                        showSchedule(scheduleForSecondWeek);
+                        setupViewPager();
                         return true;
 
                     default:
@@ -481,7 +481,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
 
         switch (position) {
             case 0:

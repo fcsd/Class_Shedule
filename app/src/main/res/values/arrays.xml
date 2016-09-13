@@ -11,4 +11,9 @@
         <item>Зберегти як додаткові групи</item>
     </string-array>
 
+    <string-array name="modeForEditShedule">
+        <item>Додати нову пару</item>
+        <item>Видалити існуючу</item>
+    </string-array>
+
 </resources>

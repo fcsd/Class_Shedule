@@ -1,5 +1,6 @@
 package derpyhooves.dipvlom.Activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -37,7 +38,7 @@ import derpyhooves.dipvlom.Adapters.jsoupAdapter;
 import derpyhooves.dipvlom.R;
 
 public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.MyClickListenerGA,
-        SwipeRefreshLayout.OnRefreshListener, NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener, jsoupAdapter.AsyncResponse {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -54,14 +55,11 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
     private ArrayList[] savedNames = new ArrayList[19];
     private ArrayList[] savedLinks = new ArrayList[19];
 
-    private static final String ruNameRegEx = "[А-ЯЁ][-А-яЁё]+";
-
     private ArrayList<Integer> view = new ArrayList<>();
+
     DrawerLayout drawer;
 
     SectionedRecyclerViewAdapter mSectionedAdapter;
-    SwipeRefreshLayout mSwipeRefreshLayout;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +69,8 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setTitle("Групи");
         setSupportActionBar(toolbar);
+
+
 
         drawer = (DrawerLayout) findViewById(R.id.drawer3);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -90,10 +90,6 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(llm);
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.red);
 
 
         int position = getIntent().getIntExtra("position", 0);
@@ -128,22 +124,8 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
         } else { updateGroup();
 
-           // mSwipeRefreshLayout.setRefreshing(false);
         }
     }
-
-    @Override
-    public void onRefresh() {
-        mSwipeRefreshLayout.setRefreshing(true);
-        mSwipeRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                updateGroup();
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
-    }
-
 
     public void updateGroup()
     {
@@ -394,66 +376,19 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
     public void showGroups () {
 
-        int position = getIntent().getIntExtra("position", 0);
-
         GroupLinks.clear();
         GroupNames.clear();
 
         for (int i = 0; i < 6; i++) {
-            jsoupAdapter mt = new jsoupAdapter(URLS[i], 1);
-            try {
-                map = mt.execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-            GroupLinks.add(map.get(1));
-            GroupNames.add(map.get(2));
+            jsoupAdapter mt = new jsoupAdapter(URLS[i], 1, this, this);
+            mt.execute();
         }
-
-
-        getNames.clear();
-        getLinks.clear();
-
-        for (int i = 0; i < GroupNames.size(); i++) {
-            for (int j = 0; j < GroupNames.get(i).size(); j++) {
-                getNames.add(GroupNames.get(i).get(j));
-                getLinks.add(GroupLinks.get(i).get(j));
-            }
-        }
-
-
-        if (!getNames.isEmpty()) {
-            saveArrayListToSP(getApplicationContext(), getNames, String.valueOf(position));
-            saveArrayListToSP(getApplicationContext(), getLinks, String.valueOf(position + 50));
-
-            mAdapter = new RecyclerAdapter(getApplicationContext(), this, getNames);
-            List<SectionedRecyclerViewAdapter.Section> sections =
-                    new ArrayList<SectionedRecyclerViewAdapter.Section>();
-
-            ArrayList<Integer> indexOfCourses = getCourses(getNames);
-
-            String title[] = new String[]{"Перший курс", "Другий курс", "Третій курс", "Четвертий курс", "П'ятий курс", "Шостий курс"};
-            for (int i = 0; i < indexOfCourses.size(); i++)
-                sections.add(new SectionedRecyclerViewAdapter.Section(indexOfCourses.get(i), title[view.get(i)]));
-
-            //Add your adapter to the sectionAdapter
-            SectionedRecyclerViewAdapter.Section[] dummy = new SectionedRecyclerViewAdapter.Section[sections.size()];
-            mSectionedAdapter = new SectionedRecyclerViewAdapter(this, R.layout.section, R.id.section_text, mAdapter);
-            mSectionedAdapter.setSections(sections.toArray(dummy));
-
-            //Apply this adapter to the RecyclerView
-            mRecyclerView.setAdapter(mSectionedAdapter);
-        }
-        else Toast.makeText(this, "Списку груп для вашого факультету немає!", Toast.LENGTH_LONG).show();
     }
 
 
 
     public ArrayList<Integer> getCourses(ArrayList<String> data)
     {
-        int j=1;
         String buf = data.get(0).toString();
         String tmp[]=new String[2];
         String[] s = buf.split("-");
@@ -483,7 +418,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
             if (s[1].length()>2) tmp[1]= String.valueOf(s[1].charAt(2));
             else tmp[1]= String.valueOf(s[1].charAt(1));
-      
+
 
             if ((tmp[0].compareTo(tmp[1]))==0) continue;
             tmp[0]=tmp[1];
@@ -512,8 +447,11 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         intent.putExtra("link", link);
         intent.putExtra("group", group);
         intent.putExtra("mode", 1);
+
         startActivity(intent);
+
     }
+
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -534,5 +472,48 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         intent.putExtra("request", request);
         startActivity(intent);
         return true;
+    }
+
+    @Override
+    public void processFinish(Map<Integer, ArrayList<String>> map) {
+
+        int position = getIntent().getIntExtra("position", 0);
+
+        GroupLinks.add(map.get(1));
+        GroupNames.add(map.get(2));
+
+        getNames.clear();
+        getLinks.clear();
+
+        for (int i = 0; i < GroupNames.size(); i++) {
+            for (int j = 0; j < GroupNames.get(i).size(); j++) {
+                getNames.add(GroupNames.get(i).get(j));
+                getLinks.add(GroupLinks.get(i).get(j));
+            }
+        }
+
+        if (!getNames.isEmpty()) {
+            saveArrayListToSP(getApplicationContext(), getNames, String.valueOf(position));
+            saveArrayListToSP(getApplicationContext(), getLinks, String.valueOf(position + 50));
+
+            mAdapter = new RecyclerAdapter(getApplicationContext(), this, getNames);
+            List<SectionedRecyclerViewAdapter.Section> sections =
+                    new ArrayList<SectionedRecyclerViewAdapter.Section>();
+
+            ArrayList<Integer> indexOfCourses = getCourses(getNames);
+
+            String title[] = new String[]{"Перший курс", "Другий курс", "Третій курс", "Четвертий курс", "П'ятий курс", "Шостий курс"};
+            for (int i = 0; i < indexOfCourses.size(); i++)
+                sections.add(new SectionedRecyclerViewAdapter.Section(indexOfCourses.get(i), title[view.get(i)]));
+
+            //Add your adapter to the sectionAdapter
+            SectionedRecyclerViewAdapter.Section[] dummy = new SectionedRecyclerViewAdapter.Section[sections.size()];
+            mSectionedAdapter = new SectionedRecyclerViewAdapter(this, R.layout.section, R.id.section_text, mAdapter);
+            mSectionedAdapter.setSections(sections.toArray(dummy));
+
+            //Apply this adapter to the RecyclerView
+            mRecyclerView.setAdapter(mSectionedAdapter);
+        }
+        else Toast.makeText(this, "Списку груп для вашого факультету немає!", Toast.LENGTH_LONG).show();
     }
 }

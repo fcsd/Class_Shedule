@@ -25,7 +25,8 @@ import derpyhooves.dipvlom.Adapters.RecyclerAdapter;
 import derpyhooves.dipvlom.Adapters.jsoupAdapter;
 import derpyhooves.dipvlom.R;
 
-public class TeachersActivity extends AppCompatActivity implements RecyclerAdapter.MyClickListenerGA, NavigationView.OnNavigationItemSelectedListener {
+public class TeachersActivity extends AppCompatActivity implements RecyclerAdapter.MyClickListenerGA, NavigationView.OnNavigationItemSelectedListener,
+        jsoupAdapter.AsyncResponse{
 
     private RecyclerView mRecyclerView;
     private android.support.v7.widget.RecyclerView.Adapter mAdapter;
@@ -70,19 +71,18 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
         assert mRecyclerView != null;
         mRecyclerView.setHasFixedSize(true);
 
-
         String shmi=PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(kathedra, "defaultStringIfNothingFound");
         if (shmi.equals(kathedra))
         {
             TeacherNames = GroupActivity.restoreArrayListFromSP(getApplicationContext(), String.valueOf(position + 1000));
             TeacherLinks = GroupActivity.restoreArrayListFromSP(getApplicationContext(), String.valueOf(position + 1050));
+
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mAdapter = new RecyclerAdapter(getApplicationContext(),this,TeacherNames);
+            mRecyclerView.setAdapter(mAdapter);
         }
 
         else updateTeachers();
-
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new RecyclerAdapter(getApplicationContext(),this,TeacherNames);
-        mRecyclerView.setAdapter(mAdapter);
 
 
     }
@@ -103,25 +103,8 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
 
     public void showTeachers()
     {
-        TeacherLinks.clear();
-        TeacherNames.clear();
-
-        jsoupAdapter mt = new jsoupAdapter(URLS[0], 3);
-        try {
-            map = mt.execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        TeacherLinks=map.get(1);
-        TeacherNames=map.get(2);
-
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(kathedra, kathedra).commit();
-        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherNames, String.valueOf(position + 1000));
-        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherLinks, String.valueOf(position + 1050));
-
+        jsoupAdapter mt = new jsoupAdapter(URLS[0], 3, this, this);
+        mt.execute();
     }
 
 
@@ -153,5 +136,24 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
         intent.putExtra("request", request);
         startActivity(intent);
         return true;
+    }
+
+    @Override
+    public void processFinish(Map<Integer, ArrayList<String>> map) {
+
+        TeacherLinks.clear();
+        TeacherNames.clear();
+
+        TeacherLinks=map.get(1);
+        TeacherNames=map.get(2);
+
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(kathedra, kathedra).commit();
+        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherNames, String.valueOf(position + 1000));
+        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherLinks, String.valueOf(position + 1050));
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter = new RecyclerAdapter(getApplicationContext(),this,TeacherNames);
+        mRecyclerView.setAdapter(mAdapter);
+
     }
 }

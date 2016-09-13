@@ -219,8 +219,8 @@ public class MainActivity extends AppCompatActivity
         client.connect();
         Action viewAction = Action.newAction(
                 Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
+                "Main Page", // TODO: Define a title for the content_new_schedule shown.
+                // TODO: If you have web page content_new_schedule that matches this app activity's content_new_schedule,
                 // make sure this auto-generated web page URL is correct.
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),
@@ -238,8 +238,8 @@ public class MainActivity extends AppCompatActivity
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
                 Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
+                "Main Page", // TODO: Define a title for the content_new_schedule shown.
+                // TODO: If you have web page content_new_schedule that matches this app activity's content_new_schedule,
                 // make sure this auto-generated web page URL is correct.
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),

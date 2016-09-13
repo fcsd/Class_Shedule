@@ -71,8 +71,8 @@
     <string-array name="info">
         <item>Developer: Alexandr \"FC Shakhtar Donetsk\" Serpokrylov</item>
         <item>E-mail: fc.shakhtar.donetsk1995@gmail.com</item>
-        <item>Version: 1.01</item>
-        <item>Last update: 07.09.2016</item>
+        <item>Version: 1.1</item>
+        <item>Last update: 13.09.2016</item>
     </string-array>
 
     <string name="title_activity_maps">Map</string>

@@ -1,6 +1,7 @@
 package derpyhooves.dipvlom.Activities;
 
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity
 
     boolean[] fragmentLaunched = new boolean[6];
 
+
     int requestCode = -1;
 
     @Override
@@ -74,6 +76,9 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+
+
 
         fragmentLaunched[0]=true;
         for (int i=1; i<fragmentLaunched.length; i++) fragmentLaunched[i]=false;

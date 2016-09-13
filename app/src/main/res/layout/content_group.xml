@@ -20,13 +20,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_below="@+id/toolbar_layout"
-        android:id="@+id/refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/my_recycler_view2"
         android:scrollbars="vertical"
@@ -38,7 +31,5 @@
         android:paddingTop="5dp"
         android:paddingRight="10dp"
         android:paddingBottom="5dp" />
-
-    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

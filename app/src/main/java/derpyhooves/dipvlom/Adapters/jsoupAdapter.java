@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import derpyhooves.dipvlom.Activities.MainActivity;
 import derpyhooves.dipvlom.Activities.ScheduleActivity;
 import derpyhooves.dipvlom.R;
 
@@ -35,29 +37,26 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
 
     private String mURL;
     private int m_mode;
+    private ProgressDialog dialog;
+    private Activity activity;
 
     public AsyncResponse delegate = null;
-    private boolean isOneProgressDialogShow = false;
 
-    private ProgressDialog dialog;
 
     public jsoupAdapter(String URL, int mode, Activity activity, AsyncResponse delegate) {
         mURL = URL;
         m_mode = mode;
         this.delegate = delegate;
-        dialog = new ProgressDialog(activity);
+        this.activity=activity;
     }
 
     @Override
     protected void onPreExecute() {
-        if (m_mode==1 && !isOneProgressDialogShow)
-        {
-            dialog.setMessage("Завантаження...");
-            dialog.show();
-            isOneProgressDialogShow = true;
-        }
+
         if (m_mode==2 || m_mode==3 || m_mode==4)
         {
+            dialog = new ProgressDialog(activity);
+            dialog.setCancelable(false);
             dialog.setMessage("Завантаження...");
             dialog.show();
         }
@@ -214,7 +213,7 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
 
     @Override
     protected void onPostExecute(Map<Integer, ArrayList<String>> map) {
-            if (dialog.isShowing()) dialog.dismiss();
+            if ((m_mode==2 || m_mode==3 || m_mode==4) && dialog.isShowing()) dialog.dismiss();
             delegate.processFinish(map);
         }
     }

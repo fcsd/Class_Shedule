@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,16 +55,16 @@ public class NewScheduleActivity extends AppCompatActivity {
     private int countSave = 0;
     private int countDelete = 0;
 
-    private RelativeLayout EditShedule;
-    private RelativeLayout DeleteShedule;
+    private ScrollView EditShedule;
+    private ScrollView DeleteShedule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_schedule);
 
-        EditShedule = (RelativeLayout) findViewById(R.id.new_schedule);
-        DeleteShedule = (RelativeLayout) findViewById(R.id.delete_schedule);
+        EditShedule = (ScrollView) findViewById(R.id.new_schedule);
+        DeleteShedule = (ScrollView) findViewById(R.id.delete_schedule);
         DeleteShedule.setVisibility(View.GONE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -273,7 +274,9 @@ public class NewScheduleActivity extends AppCompatActivity {
     }
 
     public void getWeek(final int mode) {
-        TextView textView = (TextView) findViewById(R.id.section_text);
+        TextView textView = null;
+        if (mode==0) textView = (TextView) findViewById(R.id.section_text);
+        if (mode==1) textView = (TextView) findViewById(R.id.section_text10);
         textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         ArrayList<String> textWeek = new ArrayList<>();
@@ -309,7 +312,10 @@ public class NewScheduleActivity extends AppCompatActivity {
     }
 
     public void getTime(final int mode) {
-        TextView textView = (TextView) findViewById(R.id.section_text2);
+
+        TextView textView = null;
+        if (mode==0) textView = (TextView) findViewById(R.id.section_text2);
+        if (mode==1) textView = (TextView) findViewById(R.id.section_text12);
         textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         Spinner forTime = null;
@@ -620,7 +626,9 @@ public class NewScheduleActivity extends AppCompatActivity {
 
     private void getDay(final int mode)
     {
-        TextView textView = (TextView) findViewById(R.id.section_text6);
+        TextView textView = null;
+        if (mode==0) textView = (TextView) findViewById(R.id.section_text6);
+        if (mode==1) textView = (TextView) findViewById(R.id.section_text11);
         textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         final ArrayList<String> shmi = new ArrayList<String>(Arrays.asList("Понеділок","Вівторок","Середа","Четвер","П'ятниця"));

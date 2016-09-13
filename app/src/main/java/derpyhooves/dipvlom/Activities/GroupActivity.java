@@ -9,7 +9,6 @@ import android.net.NetworkInfo;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -58,6 +57,8 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
     private ArrayList<Integer> view = new ArrayList<>();
 
     DrawerLayout drawer;
+
+    private ProgressDialog dialog;
 
     SectionedRecyclerViewAdapter mSectionedAdapter;
 
@@ -124,6 +125,27 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
         } else { updateGroup();
 
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_group, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.update:
+                updateGroup();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -379,6 +401,11 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         GroupLinks.clear();
         GroupNames.clear();
 
+        dialog = new ProgressDialog(this);
+        dialog.setCancelable(false);
+        dialog.setMessage("Завантаження...");
+        dialog.show();
+
         for (int i = 0; i < 6; i++) {
             jsoupAdapter mt = new jsoupAdapter(URLS[i], 1, this, this);
             mt.execute();
@@ -411,14 +438,13 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
             buf=data.get(i).toString();
             s = buf.split("-");
 
-            Pattern p = Pattern.compile("[\\p{InCyrillic}]", Pattern.UNICODE_CASE);
+            Pattern p = Pattern.compile("[\\p{L}]", Pattern.UNICODE_CASE);
             Matcher m = p.matcher(s[1]);
 
             while (m.find()) s[1]=s[1].substring(0,s[1].length()-1);
 
             if (s[1].length()>2) tmp[1]= String.valueOf(s[1].charAt(2));
             else tmp[1]= String.valueOf(s[1].charAt(1));
-
 
             if ((tmp[0].compareTo(tmp[1]))==0) continue;
             tmp[0]=tmp[1];
@@ -479,6 +505,10 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
         int position = getIntent().getIntExtra("position", 0);
 
+        SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        int count_processFinish=prefs.getInt("count_processFinish",0);
+        count_processFinish++;
+
         GroupLinks.add(map.get(1));
         GroupNames.add(map.get(2));
 
@@ -513,7 +543,24 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
             //Apply this adapter to the RecyclerView
             mRecyclerView.setAdapter(mSectionedAdapter);
+
+            if (count_processFinish==6)
+            {
+                dialog.dismiss();
+                prefs.edit().putInt("count_processFinish",0);
+            }
+            else prefs.edit().putInt("count_processFinish",count_processFinish).apply();
+
         }
-        else Toast.makeText(this, "Списку груп для вашого факультету немає!", Toast.LENGTH_LONG).show();
+        else
+        {
+            if (count_processFinish==6)
+            {
+                Toast.makeText(this, "Списку груп для вашого факультету немає!", Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+                prefs.edit().putInt("count_processFinish",0).apply();
+            }
+            else prefs.edit().putInt("count_processFinish",count_processFinish).apply();
+        }
     }
 }

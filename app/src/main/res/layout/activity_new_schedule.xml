@@ -8,6 +8,17 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
+
+    <include
+        layout="@layout/content_new_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <include
+        layout="@layout/content_delete_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,9 +33,5 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include
-        layout="@layout/content_new_schedule"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </RelativeLayout>

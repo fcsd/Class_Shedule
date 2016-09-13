@@ -377,7 +377,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
                 for (int i=0; i<allSchedule.size()/2; i++) scheduleForFirstWeek.add(allSchedule.get(i));
                 for (int i=allSchedule.size()/2; i<allSchedule.size(); i++) scheduleForSecondWeek.add(allSchedule.get(i));
                 showSchedule(scheduleForFirstWeek);
-                showSchedule(scheduleForSecondWeek);
                 setupViewPager();
             }
         }

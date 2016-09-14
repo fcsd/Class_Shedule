@@ -2,6 +2,9 @@ package derpyhooves.dipvlom.Activities;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
@@ -12,9 +15,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -26,13 +34,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import derpyhooves.dipvlom.R;
 
-public class NewScheduleActivity extends AppCompatActivity {
+public class NewScheduleActivity extends AppCompatActivity  {
 
     private ArrayList<String> allSchedule = new ArrayList<>();
     private ArrayList<String> ListOfSubject = new ArrayList<>();
@@ -57,6 +66,8 @@ public class NewScheduleActivity extends AppCompatActivity {
 
     private ScrollView EditShedule;
     private ScrollView DeleteShedule;
+    private EditText editText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +92,6 @@ public class NewScheduleActivity extends AppCompatActivity {
 
         toolbar.addView(mSpinner);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
 
         allSchedule = getIntent().getStringArrayListExtra("allSchedule");
         group = getIntent().getStringExtra("group");
@@ -126,6 +136,7 @@ public class NewScheduleActivity extends AppCompatActivity {
         getSubject();
         getHouse();
         getType();
+        getText();
 
         final Button button = (Button) findViewById(R.id.temp_save);
         assert button != null;
@@ -153,32 +164,37 @@ public class NewScheduleActivity extends AppCompatActivity {
     }
 
     private void temp_result() {
-        if (House.isEmpty())
+
+        String title=editText.getText().toString();
+        String allHouse;
+
+        if (title.isEmpty())
             Toast.makeText(this, "Не була введена аудиторія. Проміжний розклад не буде збережений!", Toast.LENGTH_LONG).show();
 
         else {
 
+            allHouse = title + " " + House;
             switch (WeekPosition) {
                 case 0: // обе недели
                     allSchedule.set(TimePosition * 16, toNormalTime(TimePosition)); // установка времени
                     allSchedule.set(TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 2, House); // установка аудитории
+                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
                     allSchedule.set(TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
                     allSchedule.set(96 + TimePosition * 16, toNormalTime(TimePosition)); // установка времени
                     allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 2, House); // установка аудитории
+                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
                     allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
                     break;
                 case 1: // первая неделя
                     allSchedule.set(TimePosition * 16, toNormalTime(TimePosition)); // установка времени
                     allSchedule.set(TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 2, House); // установка аудитории
+                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
                     allSchedule.set(TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
                     break;
                 case 2: // вторая неделя
                     allSchedule.set(96 + TimePosition * 16, toNormalTime(TimePosition)); // установка времени
                     allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 2, House); // установка аудитории
+                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
                     allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
                     break;
             }
@@ -465,19 +481,31 @@ public class NewScheduleActivity extends AppCompatActivity {
 
                 if (position==0)
                 {
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(NewScheduleActivity.this);
+                    AlertDialog alertDialog;
+                    alertDialog = new AlertDialog.Builder(NewScheduleActivity.this).create();
 
                     final EditText input = new EditText(NewScheduleActivity.this);
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.MATCH_PARENT);
                     input.setLayoutParams(lp);
+
                     alertDialog.setView(input);
                     alertDialog.setTitle("Введіть назву нового предмету");
+                    alertDialog.setCanceledOnTouchOutside(false);
 
-                    alertDialog.setPositiveButton("Додати",
+                    input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+                            if (hasFocus) showKeyboard(v);
+                            if (!hasFocus) hideKeyboard(v);
+                        }
+                    });
+
+                    alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Додати",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
+
                                     newSubject[0] = input.getText().toString();
                                     if (newSubject[0].isEmpty())
                                         Toast.makeText(getBaseContext(), "Нічого не було введено, новий предмет не буде доданий!", Toast.LENGTH_SHORT).show();
@@ -488,18 +516,19 @@ public class NewScheduleActivity extends AppCompatActivity {
                                         isNewSubjectAdd =true;
                                         getSubject();
                                     }
+                                    input.setFocusable(false);
                                 }
                             });
 
-                    alertDialog.setNegativeButton("Відмінити",
+                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Відмінити",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
+                                    input.setFocusable(false);
                                     dialog.cancel();
                                     if(!isFirstCallGetSubject) forSubject.setSelection(positions[1]);
                                     else forSubject.setSelection(1);
                                 }
                             });
-
                     alertDialog.show();
                 }
                 else Subject = ListOfSubject.get(position);
@@ -509,7 +538,6 @@ public class NewScheduleActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
-
     }
 
 
@@ -528,67 +556,51 @@ public class NewScheduleActivity extends AppCompatActivity {
         adapterForSubject.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         final Spinner forSubject = (Spinner) findViewById(R.id.spinner4);
 
-
         forSubject.setAdapter(adapterForSubject);
+
+        House = getShortHouse(shmi.get(0));
 
         // устанавливаем обработчик нажатия
         forSubject.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
+            public void onItemSelected(AdapterView<?> parent, final View view,
                                        final int position, long id) {
 
                 isCancelPressed = false;
                 if (isFirstCallGetHouse) isFirstCallGetHouse=false;
 
-                else{
-
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(NewScheduleActivity.this);
-
-                    final EditText input = new EditText(NewScheduleActivity.this);
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.MATCH_PARENT);
-                    input.setLayoutParams(lp);
-
-                        alertDialog.setView(input);
-                        alertDialog.setTitle("Введіть аудиторію");
-
-
-                        final String[] newHouse = {new String()};
-
-                        alertDialog.setPositiveButton("Додати",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        newHouse[0] = input.getText().toString();
-                                        if (newHouse[0].isEmpty())
-                                            Toast.makeText(getBaseContext(), "Нічого не було введено, аудиторія не буде збережена!", Toast.LENGTH_SHORT).show();
-
-                                        else {
-                                            House = newHouse[0] + " " + getShortHouse(shmi.get(position));
-                                        }
-                                    }
-                                });
-
-                        alertDialog.setNegativeButton("Відмінити",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                        isCancelPressed = true;
-
-                                    }
-                                });
-
-                    if (!isCancelPressed) alertDialog.show();
-
-                }
+                else House = getShortHouse(shmi.get(position));
             }
-
 
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
-        });
 
+        });
+    }
+
+    public void getText()
+    {
+        editText = (EditText) findViewById(R.id.etWidth1);
+        assert editText != null;
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) hideKeyboard(v);
+            }
+        });
+    }
+
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public void showKeyboard(View view) {
+        InputMethodManager inputMgr = (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMgr.toggleSoftInput(InputMethodManager.SHOW_FORCED,InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 
     private void getType()
@@ -798,6 +810,7 @@ public class NewScheduleActivity extends AppCompatActivity {
                 return true;
 
             case android.R.id.home:
+                editText.setFocusable(false);
                 this.finish();
                 return true;
 

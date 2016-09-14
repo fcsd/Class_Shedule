@@ -72,7 +72,8 @@
             android:value="AIzaSyCKboFF3SO817pGT6hvyaio2XGB8lKlGBk" />
 
         <activity android:name=".Activities.NewScheduleActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"/>
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".Activities.TeachersActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity android:name=".Activities.InfoTeacherActivity"

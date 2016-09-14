@@ -52,6 +52,7 @@ public class NewTaskActivity extends AppCompatActivity {
     private ArrayList<String> currentTask;
 
     private int mode;
+    private boolean isFirstOpenDatePicker = true;
 
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private long mBackPressed;
@@ -161,14 +162,14 @@ public class NewTaskActivity extends AppCompatActivity {
 
         //CALENDAR
         final Calendar c1 = Calendar.getInstance();
-        final int year = c1.get(Calendar.YEAR);
-        final int month = c1.get(Calendar.MONTH);
-        final int day = c1.get(Calendar.DAY_OF_MONTH);
+        final int[] year = {c1.get(Calendar.YEAR)};
+        final int[] month = {c1.get(Calendar.MONTH)};
+        final int[] day = {c1.get(Calendar.DAY_OF_MONTH)};
 
 
         Date jud = null;
         try {
-            jud = new SimpleDateFormat("yyyy MM dd").parse(Integer.toString(year) + " " + Integer.toString(month + 1) + " " + Integer.toString(day));
+            jud = new SimpleDateFormat("yyyy MM dd").parse(Integer.toString(year[0]) + " " + Integer.toString(month[0] + 1) + " " + Integer.toString(day[0]));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -177,7 +178,7 @@ public class NewTaskActivity extends AppCompatActivity {
 
         final TextView datePicker = (TextView) findViewById(R.id.clickable_calendar);
         assert datePicker != null;
-        if(mode==1) datePicker.setText(displayDate);
+        if(mode==1) datePicker.setText("Виконати до " + displayDate);
         if(mode==2) datePicker.setText(currentTask.get(2));
 
         datePicker.setOnClickListener(new View.OnClickListener() {
@@ -196,15 +197,84 @@ public class NewTaskActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                             displayDate = DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("uk", "UA")).format(jud);
-                            datePicker.setText(displayDate);
+                            datePicker.setText("Виконати до " + displayDate);
+
+                            year[0] = arg1;
+                            month[0]=arg2;
+                            day[0]=arg3;
                         }
                     }
-
                 };
-                DatePickerDialog dp = new DatePickerDialog(NewTaskActivity.this, myDateListener, year, month, day);
+
+                if (mode==2 && isFirstOpenDatePicker)
+                {
+                    String [] replaceDate = currentTask.get(2).split(" ");
+                    day[0] = Integer.parseInt(replaceDate[2]);
+                    month[0] = getSavedMonth(replaceDate[3]);
+                    year[0] = Integer.parseInt(replaceDate[4]);
+                    isFirstOpenDatePicker = false;
+                }
+
+                DatePickerDialog dp = new DatePickerDialog(NewTaskActivity.this, myDateListener, year[0], month[0], day[0]);
                 dp.show();
             }
         });
+    }
+
+    public int getSavedMonth(String month)
+    {
+        int Int_month = -1;
+        switch (month)
+        {
+            case "січня":
+                Int_month=0;
+                break;
+
+            case "лютого":
+                Int_month=1;
+                break;
+
+            case "березня":
+                Int_month=2;
+                break;
+
+            case "квітня":
+                Int_month=3;
+                break;
+
+            case "травня":
+                Int_month=4;
+                break;
+
+            case "червня":
+                Int_month=5;
+                break;
+
+            case "липня":
+                Int_month=6;
+                break;
+
+            case "серпня":
+                Int_month=7;
+                break;
+
+            case "вересня":
+                Int_month=8;
+                break;
+
+            case "жовтня":
+                Int_month=9;
+                break;
+
+            case "листопада":
+                Int_month=10;
+                break;
+
+            case "грудня":
+                Int_month=11;
+                break;
+        }
+        return Int_month;
     }
 
     public void getText()
@@ -226,6 +296,20 @@ public class NewTaskActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 

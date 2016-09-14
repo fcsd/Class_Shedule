@@ -77,9 +77,6 @@ public class MainActivity extends AppCompatActivity
 
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-
-
-
         fragmentLaunched[0]=true;
         for (int i=1; i<fragmentLaunched.length; i++) fragmentLaunched[i]=false;
 

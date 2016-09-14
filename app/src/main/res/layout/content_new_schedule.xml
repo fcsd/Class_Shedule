@@ -19,6 +19,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
        >
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -144,7 +146,7 @@
             android:singleLine="true"
             android:textAllCaps="true"
             android:layout_below="@+id/spinner3"
-            android:text="Оберіть аудиторію"
+            android:text="Оберіть навчальний корпус"
             android:background="@android:color/transparent"
             android:textSize="18sp"
             android:id="@+id/section_text4"
@@ -159,10 +161,20 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/section_text4"
             android:layout_marginRight="10dp"
-            android:layout_marginLeft="11dp"
+            android:layout_marginLeft="10dp"
             android:textSize="18sp">
 
         </Spinner>
+
+        <EditText android:id="@+id/etWidth1"
+            android:hint="Введіть аудиторію обраного корпусу"
+            android:layout_below="@+id/spinner4"
+            android:inputType="textCapWords|textCapSentences|textAutoComplete|textMultiLine"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="13dp"
+            android:layout_marginRight="10dp"
+            />
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
@@ -171,7 +183,7 @@
             android:paddingLeft="10dp"
             android:singleLine="true"
             android:textAllCaps="true"
-            android:layout_below="@+id/spinner4"
+            android:layout_below="@+id/etWidth1"
             android:text="Оберіть тип заняття"
             android:background="@android:color/transparent"
             android:textSize="18sp"

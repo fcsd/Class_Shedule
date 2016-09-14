@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -83,6 +85,10 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
 
         SharedPreferences prefs = getApplicationContext().getSharedPreferences("YourApp", Context.MODE_PRIVATE);
 

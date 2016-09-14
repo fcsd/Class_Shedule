@@ -7,8 +7,10 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -69,6 +71,10 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
+
        // currentSubject = getIntent().getStringArrayListExtra("subject");
         group = getIntent().getStringExtra("group");
         getSubject = getIntent().getStringArrayListExtra("subject");
@@ -82,15 +88,11 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
         if (resultCode == RESULT_OK) {
 
             if (requestCode == REQUEST_SAVE_NEW_TASK) {
-            // Make sure the request was successful
-
                 updateTasks(true);
                 showTasks();
             }
 
             if (requestCode == REQUEST_EDIT_TASK) {
-                // Make sure the request was successful
-
                 prepareTasks();
                 showTasks();
             }
@@ -142,7 +144,7 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
                     ArrayList<String> selectedTask = new ArrayList<>();
                     selectedTask.addAll(currentSubject.subList(position*4,position*4+4));
                     intent.putExtra("tasks", selectedTask);
-                    intent.putExtra("position", position);
+                    intent.putExtra("position", position-1);
                     intent.putExtra("mode", 2);
                     startActivityForResult(intent, REQUEST_EDIT_TASK);
                 }

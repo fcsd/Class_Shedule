@@ -453,6 +453,12 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
             else tmp[1]= String.valueOf(s[1].charAt(1));
 
             if ((tmp[0].compareTo(tmp[1]))==0) continue;
+
+            int tempCurrentYear;
+            if ((currentYear-Integer.parseInt(tmp[1])<0)) tempCurrentYear = currentYear + 10;
+            else tempCurrentYear = currentYear;
+            if (tempCurrentYear - Integer.parseInt(tmp[1])>=6) continue;
+
             tmp[0]=tmp[1];
             indexOfCourses.add(i);
 

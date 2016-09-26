@@ -459,7 +459,8 @@ public class NewScheduleActivity extends AppCompatActivity  {
         forSubject.setAdapter(adapterForSubject);
 
         // выделяем элемент
-        if(!isNewSubjectAdd)forSubject.setSelection(1);
+        if (ListOfSubject.size()==1) forSubject.setSelection(0);
+        else if (!isNewSubjectAdd) forSubject.setSelection(1);
         else forSubject.setSelection(ListOfSubject.indexOf(Subject));
 
         // устанавливаем обработчик нажатия
@@ -520,15 +521,18 @@ public class NewScheduleActivity extends AppCompatActivity  {
                                 }
                             });
 
-                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Відмінити",
+                    if (ListOfSubject.size()!=1)
+                    {
+                        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Відмінити",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    input.setFocusable(false);
-                                    dialog.cancel();
-                                    if(!isFirstCallGetSubject) forSubject.setSelection(positions[1]);
-                                    else forSubject.setSelection(1);
-                                }
-                            });
+                                        input.setFocusable(false);
+                                        dialog.cancel();
+                                        if(!isFirstCallGetSubject) forSubject.setSelection(positions[1]);
+                                        else forSubject.setSelection(1);
+                                    }
+                                });
+                            }
                     alertDialog.show();
                 }
                 else Subject = ListOfSubject.get(position);

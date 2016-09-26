@@ -138,6 +138,15 @@
 
         </Spinner>
 
+        <EditText android:id="@+id/etWidth2"
+            android:hint="Введіть назву нового предмету"
+            android:inputType="textCapWords|textCapSentences|textAutoComplete|textMultiLine"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="13dp"
+            android:layout_marginRight="10dp"
+            />
+
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="48dp"

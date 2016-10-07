@@ -80,7 +80,7 @@ public class ScheduleFragment extends Fragment {
             }
 
 
-        }, mData);
+        }, mData, false, false);
         mRecyclerView.setAdapter(mAdapter);
 
         // Inflate the layout for this fragment

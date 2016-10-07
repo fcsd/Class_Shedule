@@ -147,19 +147,23 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
     @Override
     public void processFinish(Map<Integer, ArrayList<String>> map) {
 
-        TeacherLinks.clear();
-        TeacherNames.clear();
+        if (!map.isEmpty())
+        {
+            TeacherLinks.clear();
+            TeacherNames.clear();
 
-        TeacherLinks=map.get(1);
-        TeacherNames=map.get(2);
+            TeacherLinks=map.get(1);
+            TeacherNames=map.get(2);
 
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(kathedra, kathedra).commit();
-        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherNames, String.valueOf(position + 1000));
-        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherLinks, String.valueOf(position + 1050));
+            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(kathedra, kathedra).commit();
+            GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherNames, String.valueOf(position + 1000));
+            GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherLinks, String.valueOf(position + 1050));
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new RecyclerAdapter(getApplicationContext(),this,TeacherNames);
-        mRecyclerView.setAdapter(mAdapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mAdapter = new RecyclerAdapter(getApplicationContext(),this,TeacherNames);
+            mRecyclerView.setAdapter(mAdapter);
+        }
+        else Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
 
     }
 }

@@ -10,8 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
+import derpyhooves.dipvlom.Fragments.TasksFragment;
 import derpyhooves.dipvlom.R;
 
 
@@ -20,8 +25,11 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     private ArrayList<String> mDataset;
     private MyClickListener myClickListener;
     GestureDetector mGestureDetector;
+    private boolean mIsTasksFragment;
+    private boolean mIsSubjectActivity;
 
-    public CardAdapter(Context context, MyClickListener listener, ArrayList<String> myDataset) {
+    public CardAdapter(Context context, MyClickListener listener, ArrayList<String> myDataset, boolean isTasksFragment,
+                       boolean isSubjectActivity) {
         mDataset = myDataset;
         myClickListener = listener;
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
@@ -30,6 +38,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
                 return true;
             }
         });
+        mIsTasksFragment = isTasksFragment;
+        mIsSubjectActivity = isSubjectActivity;
 
     }
 
@@ -37,16 +47,32 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
+        if (!mIsTasksFragment && !mIsSubjectActivity) {
             position=position*4;
-            holder.time.setText(mDataset.get(position));
-            holder.subject.setText(mDataset.get(position+1));
             holder.location.setText(mDataset.get(position+2));
-            holder.type.setText(mDataset.get(position+3));
+        }
+
+        if (!mIsTasksFragment && mIsSubjectActivity) {
+            position=position*5;
+            if (position==0) holder.location.setText(mDataset.get(position+2));
+            else holder.location.setText(getStringDate(mDataset.get(position+2)));
+        }
+
+        if (mIsTasksFragment && !mIsSubjectActivity) {
+            position=position*5;
+            holder.location.setText(getStringDate(mDataset.get(position+2)));
+        }
+
+        holder.time.setText(mDataset.get(position));
+        holder.subject.setText(mDataset.get(position+1));
+
+        holder.type.setText(mDataset.get(position+3));
     }
 
     @Override
     public int getItemCount() {
-        return mDataset.size()/4;
+        if (!mIsTasksFragment && !mIsSubjectActivity) return mDataset.size()/4;
+        else return mDataset.size()/5;
     }
 
     public interface MyClickListener {
@@ -55,7 +81,15 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         boolean onLongClick(View v);
     }
 
-
+    public String getStringDate (String targetDayInMillis)
+    {
+        Date date = new Date();
+        date.setTime(Long.parseLong(targetDayInMillis));
+        String formattedDate;
+        new SimpleDateFormat("yyyy MM dd").format(date);
+        formattedDate = "Виконати до " + DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("uk", "UA")).format(date);
+        return formattedDate;
+    }
 
      class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 

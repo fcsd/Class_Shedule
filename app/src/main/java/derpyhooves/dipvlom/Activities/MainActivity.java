@@ -1,12 +1,18 @@
 package derpyhooves.dipvlom.Activities;
 
+import android.app.AlarmManager;
 import android.app.FragmentManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -19,6 +25,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import derpyhooves.dipvlom.Adapters.AlarmAdapter;
 import derpyhooves.dipvlom.Fragments.HousingFragment;
 import derpyhooves.dipvlom.Fragments.InfoFragment;
 import derpyhooves.dipvlom.Fragments.KHPIFragment;
@@ -54,8 +61,9 @@ public class MainActivity extends AppCompatActivity
 
     boolean[] fragmentLaunched = new boolean[6];
 
-
     int requestCode = -1;
+
+    public static String mySharedPreferences = "YourApp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +134,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             if (requestCode == REQUEST_SAVE_NEW_SCHEDULE) {
-                SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+                SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
                 Boolean isMyGroupSaved = prefs.getBoolean("isMyGroupSaved", false);
                 mf.updateGroup(isMyGroupSaved);
             }

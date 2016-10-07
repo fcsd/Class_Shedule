@@ -2,13 +2,8 @@ package derpyhooves.dipvlom.Adapters;
 
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.support.v4.widget.SwipeRefreshLayout;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,17 +11,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-
-import derpyhooves.dipvlom.Activities.MainActivity;
-import derpyhooves.dipvlom.Activities.ScheduleActivity;
-import derpyhooves.dipvlom.R;
 
 
 public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<String>>> {
@@ -66,20 +53,15 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
     @Override
     protected Map<Integer, ArrayList<String>> doInBackground(Void... params) {
 
-        Document doc = null;
-        try {
-            doc = Jsoup.connect(mURL).get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        Document doc;
         Map<Integer, ArrayList<String>> map = new HashMap();
 
+        try {
+            doc = Jsoup.connect(mURL).get();
 
         if (m_mode == 1) {
-            //Document doc = Jsoup.connect("http://www.lazada.com.my/").followRedirects(true).get();
-            Elements links = doc.select("#form1").select("a[href]");
 
+            Elements links = doc.select("#form1").select("a[href]");
 
             ArrayList<String> GroupLinks = new ArrayList<>();
             ArrayList<String> GroupNames = new ArrayList<>();
@@ -88,6 +70,8 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
                 GroupLinks.add(link.attr("abs:href"));
                 GroupNames.add(link.text());
             }
+
+
 
             map.put(1, GroupLinks);
             map.put(2, GroupNames);
@@ -204,6 +188,9 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
             map.put(1, TeacherInfo);
             map.put(2, url);
 
+        }
+
+        } catch (IOException e) {
         }
 
         return map;

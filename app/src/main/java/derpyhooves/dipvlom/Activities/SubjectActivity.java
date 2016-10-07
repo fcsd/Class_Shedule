@@ -1,6 +1,7 @@
 package derpyhooves.dipvlom.Activities;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import derpyhooves.dipvlom.Adapters.AlarmAdapter;
 import derpyhooves.dipvlom.Adapters.CardAdapter;
 import derpyhooves.dipvlom.Adapters.SectionedRecyclerViewAdapter;
 import derpyhooves.dipvlom.R;
@@ -104,8 +106,9 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
         tasks=GroupActivity.restoreArrayListFromSP(this,"listOfTasks");
         currentSubject.clear();
         currentSubject.addAll(getSubject);
+        currentSubject.add("");
 
-        for(int i=1;i<tasks.size();i+=4)
+        for(int i=1;i<tasks.size();i+=5)
         {
             if(tasks.get(i).contains(currentSubject.get(1))&& tasks.get(i-1).contains(group))
             {
@@ -113,6 +116,7 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
                 currentSubject.add(tasks.get(i));
                 currentSubject.add(tasks.get(i+1));
                 currentSubject.add(tasks.get(i+2));
+                currentSubject.add(tasks.get(i+3));
             }
         }
     }
@@ -120,8 +124,9 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
     public void updateTasks(boolean isSavedNewTask)
     {
         tasks=GroupActivity.restoreArrayListFromSP(this,"listOfTasks");
-        if (tasks.get(tasks.size()-4).contains(group)&&tasks.get(tasks.size()-3).contains(currentSubject.get(1))&&isSavedNewTask)
+        if (tasks.get(tasks.size()-5).contains(group)&&tasks.get(tasks.size()-4).contains(currentSubject.get(1))&&isSavedNewTask)
         {
+            currentSubject.add(tasks.get(tasks.size()-5));
             currentSubject.add(tasks.get(tasks.size()-4));
             currentSubject.add(tasks.get(tasks.size()-3));
             currentSubject.add(tasks.get(tasks.size()-2));
@@ -142,7 +147,8 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
                 {
                     Intent intent = new Intent(getApplicationContext(), NewTaskActivity.class);
                     ArrayList<String> selectedTask = new ArrayList<>();
-                    selectedTask.addAll(currentSubject.subList(position*4,position*4+4));
+                    selectedTask.addAll(currentSubject.subList(position*5,position*5+5));
+
                     intent.putExtra("tasks", selectedTask);
                     intent.putExtra("position", position-1);
                     intent.putExtra("mode", 2);
@@ -156,7 +162,7 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
             }
 
 
-        }, currentSubject);
+        }, currentSubject, false, true);
 
         List<SectionedRecyclerViewAdapter.Section> sections =
                 new ArrayList<SectionedRecyclerViewAdapter.Section>();
@@ -191,7 +197,7 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
                     Bitmap bitmap;
 
                     if (dX < 0) { // swiping left
-                        bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.content_delete);
+                        bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.delete);
                         float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
                         c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
@@ -212,23 +218,27 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int position=viewHolder.getAdapterPosition();
                 position=mSectionedAdapter.sectionedPositionToPosition(position);
-                boolean isDeleteSuccess = false;
 
                 if (position!=0)
                 {
                     tasks=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"listOfTasks");
-                    for (int j=0; j<tasks.size(); j+=4)
+
+                    for (int j=0; j<tasks.size(); j+=5)
                     {
-                        if (tasks.get(j).equals(currentSubject.get(position*4))&&tasks.get(j+1).equals(currentSubject.get(position*4+1))
-                                && tasks.get(j+2).equals(currentSubject.get(position*4+2)) && tasks.get(j+3).equals(currentSubject.get(position*4+3)))
+                        if (tasks.get(j).equals(currentSubject.get(position*5))&&tasks.get(j+1).equals(currentSubject.get(position*5+1))
+                                && tasks.get(j+2).equals(currentSubject.get(position*5+2)) && tasks.get(j+3).equals(currentSubject.get(position*5+3)))
                         {
-                            for (int i=0; i<4; i++)
+                            for (int i=0; i<5; i++)
                             {
-                                currentSubject.remove(position*4);
+                                currentSubject.remove(position*5);
+                                if (i==4)
+                                {
+                                    NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+                                    notificationManager.cancel(Integer.parseInt(tasks.get(j)));
+                                }
                                 tasks.remove(j);
-                                isDeleteSuccess=true;
                             }
-                            if (isDeleteSuccess) break;
+                            break;
                         }
                     }
 
@@ -360,7 +370,7 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
 
             case R.id.subject_task:
 
-                SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+                SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
                 if(prefs.contains(group+"_size"))
                 {
                     Intent intent = new Intent(getApplicationContext(), NewTaskActivity.class);

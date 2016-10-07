@@ -1,10 +1,17 @@
 package derpyhooves.dipvlom.Activities;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Paint;
+import android.os.Build;
+import android.os.SystemClock;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -33,9 +40,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.logging.Handler;
 
+import derpyhooves.dipvlom.Adapters.AlarmAdapter;
 import derpyhooves.dipvlom.Fragments.TasksFragment;
 import derpyhooves.dipvlom.R;
 
@@ -53,6 +62,9 @@ public class NewTaskActivity extends AppCompatActivity {
 
     private int mode;
     private boolean isFirstOpenDatePicker = true;
+    private long previousDayInMillis;
+    private long targetDayInMillis;
+    private long currentNotificationId;
 
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private long mBackPressed;
@@ -167,19 +179,31 @@ public class NewTaskActivity extends AppCompatActivity {
         final int[] day = {c1.get(Calendar.DAY_OF_MONTH)};
 
 
-        Date jud = null;
-        try {
-            jud = new SimpleDateFormat("yyyy MM dd").parse(Integer.toString(year[0]) + " " + Integer.toString(month[0] + 1) + " " + Integer.toString(day[0]));
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (mode==1)
+        {
+            Date jud = null;
+            try {
+                jud = new SimpleDateFormat("yyyy MM dd").parse(Integer.toString(year[0]) + " " + Integer.toString(month[0] + 1) + " " + Integer.toString(day[0]));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            displayDate = DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("uk", "UA")).format(jud);
+            targetDayInMillis = c1.getTimeInMillis();
         }
-        displayDate = DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("uk", "UA")).format(jud);
+
+        if (mode==2)
+        {
+            Date date = new Date();
+            date.setTime(Long.parseLong(currentTask.get(2)));
+            new SimpleDateFormat("yyyy MM dd").format(date);
+            displayDate = DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("uk", "UA")).format(date);
+            targetDayInMillis = (Long.parseLong(currentTask.get(2)));
+        }
 
 
         final TextView datePicker = (TextView) findViewById(R.id.clickable_calendar);
         assert datePicker != null;
-        if(mode==1) datePicker.setText("Виконати до " + displayDate);
-        if(mode==2) datePicker.setText(currentTask.get(2));
+        datePicker.setText("Виконати до " + displayDate);
 
         datePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +220,12 @@ public class NewTaskActivity extends AppCompatActivity {
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
+
+                            c1.set(arg1,arg2,arg3, Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                                    Calendar.getInstance().get(Calendar.MINUTE),Calendar.getInstance().get(Calendar.SECOND));
+                            targetDayInMillis = c1.getTimeInMillis();
+                            previousDayInMillis = targetDayInMillis - 1000 * 60 * 60 * 24;
+
                             displayDate = DateFormat.getDateInstance(SimpleDateFormat.LONG, new Locale("uk", "UA")).format(jud);
                             datePicker.setText("Виконати до " + displayDate);
 
@@ -208,10 +238,10 @@ public class NewTaskActivity extends AppCompatActivity {
 
                 if (mode==2 && isFirstOpenDatePicker)
                 {
-                    String [] replaceDate = currentTask.get(2).split(" ");
-                    day[0] = Integer.parseInt(replaceDate[2]);
-                    month[0] = getSavedMonth(replaceDate[3]);
-                    year[0] = Integer.parseInt(replaceDate[4]);
+                    c1.setTimeInMillis(Long.parseLong(currentTask.get(2)));
+                    year[0] = c1.get(Calendar.YEAR);
+                    month[0]=c1.get(Calendar.MONTH);
+                    day[0]=c1.get(Calendar.DAY_OF_MONTH);
                     isFirstOpenDatePicker = false;
                 }
 
@@ -219,62 +249,6 @@ public class NewTaskActivity extends AppCompatActivity {
                 dp.show();
             }
         });
-    }
-
-    public int getSavedMonth(String month)
-    {
-        int Int_month = -1;
-        switch (month)
-        {
-            case "січня":
-                Int_month=0;
-                break;
-
-            case "лютого":
-                Int_month=1;
-                break;
-
-            case "березня":
-                Int_month=2;
-                break;
-
-            case "квітня":
-                Int_month=3;
-                break;
-
-            case "травня":
-                Int_month=4;
-                break;
-
-            case "червня":
-                Int_month=5;
-                break;
-
-            case "липня":
-                Int_month=6;
-                break;
-
-            case "серпня":
-                Int_month=7;
-                break;
-
-            case "вересня":
-                Int_month=8;
-                break;
-
-            case "жовтня":
-                Int_month=9;
-                break;
-
-            case "листопада":
-                Int_month=10;
-                break;
-
-            case "грудня":
-                Int_month=11;
-                break;
-        }
-        return Int_month;
     }
 
     public void getText()
@@ -345,11 +319,14 @@ public class NewTaskActivity extends AppCompatActivity {
         title=editText.getText().toString();
         if (title.isEmpty()) Toast.makeText(this, "Відсутній опис завдання!", Toast.LENGTH_LONG).show();
         else{
+            scheduleNotification(getNotification());
+
             ArrayList<String> task=GroupActivity.restoreArrayListFromSP(this,"listOfTasks");
             task.add(group);
             task.add(subject);
-            task.add("Виконати до " + displayDate);
+            task.add(String.valueOf(targetDayInMillis));
             task.add(title);
+            task.add(String.valueOf(currentNotificationId));
             GroupActivity.saveArrayListToSP(this,task,"listOfTasks");
             Toast.makeText(this, "Завдання будо успішно збережено!", Toast.LENGTH_LONG).show();
 
@@ -365,12 +342,15 @@ public class NewTaskActivity extends AppCompatActivity {
         title=editText.getText().toString();
         if (title.isEmpty()) Toast.makeText(this, "Відсутній опис завдання!", Toast.LENGTH_LONG).show();
         else{
+            scheduleNotification(getNotification());
+
             int position = getIntent().getIntExtra("position", 0);
             ArrayList<String> task=GroupActivity.restoreArrayListFromSP(this,"listOfTasks");
-            task.set(position*4,group);
-            task.set(position*4+1,subject);
-            task.set(position*4+2,"Виконати до " + displayDate);
-            task.set(position*4+3,title);
+            task.set(position*5,group);
+            task.set(position*5+1,subject);
+            task.set(position*5+2,String.valueOf(targetDayInMillis));
+            task.set(position*5+3,title);
+            task.set(position*5+4, String.valueOf(currentNotificationId));
             GroupActivity.saveArrayListToSP(this,task,"listOfTasks");
 
             Intent intent=new Intent();
@@ -378,6 +358,44 @@ public class NewTaskActivity extends AppCompatActivity {
 
             finish();
         }
+    }
+
+    private void scheduleNotification(Notification notification) {
+
+        if (mode==1)
+        {
+            SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+            currentNotificationId = prefs.getLong("maxNotificationId", 0);
+            currentNotificationId++;
+            prefs.edit().putLong("maxNotificationId", currentNotificationId).commit();
+        }
+
+        if (mode==2) currentNotificationId = Long.parseLong(currentTask.get(4));
+
+        Intent notificationIntent = new Intent(this, AlarmAdapter.class);
+        notificationIntent.putExtra(AlarmAdapter.NOTIFICATION_ID, currentNotificationId);
+        notificationIntent.putExtra(AlarmAdapter.NOTIFICATION, notification);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        long futureInMillis = previousDayInMillis + 60000;
+
+        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, futureInMillis, pendingIntent);
+    }
+
+    private Notification getNotification() {
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("Завдання" + " до " + displayDate);
+        builder.setContentText(title);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            new Notification.BigTextStyle(builder).bigText(title);
+            return builder.build();
+        }
+        else return builder.getNotification();
+
     }
 
     @Override

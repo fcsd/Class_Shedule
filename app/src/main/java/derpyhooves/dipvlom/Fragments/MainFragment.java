@@ -24,6 +24,7 @@ import java.util.List;
 
 import derpyhooves.dipvlom.Activities.DepartmentActivity;
 import derpyhooves.dipvlom.Activities.GroupActivity;
+import derpyhooves.dipvlom.Activities.MainActivity;
 import derpyhooves.dipvlom.Activities.ScheduleActivity;
 import derpyhooves.dipvlom.Adapters.CardAdapter;
 import derpyhooves.dipvlom.Adapters.SectionedRecyclerViewAdapter;
@@ -76,7 +77,7 @@ public class MainFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
 
         Boolean isMyGroupSaved = prefs.getBoolean("isMyGroupSaved", false);
         updateGroup(isMyGroupSaved);
@@ -108,7 +109,7 @@ public class MainFragment extends Fragment {
             }
 
 
-        }, viewGroup);
+        }, viewGroup, false, false);
 
 
         List<SectionedRecyclerViewAdapter.Section> sections =

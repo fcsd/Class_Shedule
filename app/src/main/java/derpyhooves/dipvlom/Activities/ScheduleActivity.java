@@ -1,5 +1,6 @@
 package derpyhooves.dipvlom.Activities;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,9 +28,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import derpyhooves.dipvlom.Adapters.PagerAdapter;
 import derpyhooves.dipvlom.Adapters.jsoupAdapter;
@@ -45,7 +46,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     private ArrayList<String> scheduleForFirstWeek = new ArrayList<>();
     private ArrayList<String> scheduleForSecondWeek = new ArrayList<>();
     private ArrayList<String> type = new ArrayList<>();
-    private Map<Integer, ArrayList<String>> map = new HashMap<>();
     private ArrayList<String> allSchedule = new ArrayList<>();
 
     private ArrayList<String> monday = new ArrayList<>();
@@ -54,12 +54,15 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     private ArrayList<String> thursday = new ArrayList<>();
     private ArrayList<String> friday = new ArrayList<>();
 
-    private ArrayList<String> tasks = new ArrayList<>();
-
     private boolean isCurrentGroupSaved = false;
+    private boolean isUpdateSchedule = false;
+    private boolean isFirstCallViewPager = true;
 
     private MenuItem mSaveSchedule;
     private MenuItem mEditSchedule;
+
+    private int indexOfUpdateSchedule;
+    private int tabPosition;
 
     final int REQUEST_SAVE_NEW_TASK = 1;
     ViewPager viewPager;
@@ -67,11 +70,31 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
 
     @Override
     public void processFinish(Map<Integer, ArrayList<String>> map) {
-        scheduleForFirstWeek = map.get(1);
-        scheduleForSecondWeek = map.get(2);
-        type=map.get(3);
-        showSchedule(scheduleForFirstWeek);
-        setupViewPager();
+        if (!map.isEmpty())
+        {
+
+            scheduleForFirstWeek = map.get(1);
+            scheduleForSecondWeek = map.get(2);
+            type=map.get(3);
+            showSchedule(scheduleForFirstWeek);
+            setupViewPager();
+
+            if (isUpdateSchedule)
+            {
+                allSchedule.clear();
+                allSchedule.addAll(scheduleForFirstWeek);
+                allSchedule.addAll(scheduleForSecondWeek);
+                GroupActivity.saveArrayListToSP(getApplicationContext(),allSchedule,group);
+
+                ArrayList<String> keysOfSavedScheduleAutumSpring=GroupActivity.restoreArrayListFromSP(this,"typesOfGroup");
+                keysOfSavedScheduleAutumSpring.set(indexOfUpdateSchedule, type.get(0));
+                GroupActivity.saveArrayListToSP(this,keysOfSavedScheduleAutumSpring,"typesOfGroup");
+
+                isUpdateSchedule = false;
+            }
+
+        }
+        else Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
     }
 
 
@@ -114,7 +137,7 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
-        SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
 
         if (mode==1)
         {
@@ -139,10 +162,29 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
             setTitle(group);
 
             allSchedule=GroupActivity.restoreArrayListFromSP(this,group);
-            for (int i=0; i<allSchedule.size()/2; i++) scheduleForFirstWeek.add(allSchedule.get(i));
-            for (int i=allSchedule.size()/2; i<allSchedule.size(); i++) scheduleForSecondWeek.add(allSchedule.get(i));
+            scheduleForFirstWeek.addAll((allSchedule.subList(0,allSchedule.size()/2)));
+            scheduleForSecondWeek.addAll((allSchedule.subList(allSchedule.size()/2,allSchedule.size())));
             isCurrentGroupSaved=true;
         }
+
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageSelected(int arg0) {
+                tabPosition = arg0;
+            }
+
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+                tabPosition = arg0;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int num) {
+
+            }
+        });
     }
 
     public void updateSchedule()
@@ -201,14 +243,14 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
                         return true;
 
                     case R.id.schedule_update:
+
                         ArrayList<String> keysOfSavedSchedule=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"keysOfGroup");
                         ArrayList<String> linksOfSavedSchedule=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"linksOfGroup");
-                        int indexOfUpdateSchedule=keysOfSavedSchedule.indexOf(group);
+                        indexOfUpdateSchedule=keysOfSavedSchedule.indexOf(group);
                         link= linksOfSavedSchedule.get(indexOfUpdateSchedule);
+
+                        isUpdateSchedule=true;
                         updateSchedule();
-                        showSchedule(scheduleForFirstWeek);
-                        showSchedule(scheduleForSecondWeek);
-                        setupViewPager();
                         return true;
 
                     default:
@@ -271,9 +313,9 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         linksOfSavedSchedule.add(0,link);
         GroupActivity.saveArrayListToSP(this,linksOfSavedSchedule,"linksOfGroup");
 
-        SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
-        prefs.edit().putBoolean("isMyGroupSaved", true).commit();
-        prefs.edit().putString("myGroup", group).commit();
+        SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean("isMyGroupSaved", true).apply();
+        prefs.edit().putString("myGroup", group).apply();
 
         isCurrentGroupSaved = true;
         Toast.makeText(this, "Розклад групи "+group+" був збережен як розклад основної групи", Toast.LENGTH_LONG).show();
@@ -322,8 +364,8 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         ArrayList<String> keysOfSavedSchedule;
         ArrayList<String> keysOfSavedScheduleAutumSpring;
         ArrayList<String> linksOfSavedSchedule;
-        SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
-        prefs.edit().remove(group+"_size").commit();
+        SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+        prefs.edit().remove(group+"_size").apply();
 
         keysOfSavedSchedule=GroupActivity.restoreArrayListFromSP(this,"keysOfGroup");
         int removeIndex=keysOfSavedSchedule.indexOf(group);
@@ -338,23 +380,28 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         linksOfSavedSchedule.remove(removeIndex);
         GroupActivity.saveArrayListToSP(this,linksOfSavedSchedule,"linksOfGroup");
 
-        if(group.contains(prefs.getString("myGroup", "defaultStringIfNothingFound"))) prefs.edit().remove("isMyGroupSaved").commit();
+        if(group.contains(prefs.getString("myGroup", "defaultStringIfNothingFound"))) prefs.edit().remove("isMyGroupSaved").apply();
 
         isCurrentGroupSaved=false;
 
-        tasks= GroupActivity.restoreArrayListFromSP(this,"listOfTasks");
-        for (int i=0; i<tasks.size(); i+=4)
+        ArrayList<String> tasks = GroupActivity.restoreArrayListFromSP(this, "listOfTasks");
+        for (int i = 0; i< tasks.size(); i+=5)
         {
             if (tasks.get(i).equals(group))
             {
-                for (int j=0;j<4;j++)
+                for (int j=0;j<5;j++)
                 {
-                    tasks.remove(i*4);
+                    if (i==5)
+                    {
+                        NotificationManager notificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.cancel(Integer.parseInt(tasks.get(i*5)));
+                    }
+                    tasks.remove(i*5);
                 }
-                i-=4;
+                i-=5;
             }
         }
-        GroupActivity.saveArrayListToSP(this,tasks,"listOfTasks");
+        GroupActivity.saveArrayListToSP(this, tasks,"listOfTasks");
 
         Toast.makeText(this, "Розклад був успішно видален!", Toast.LENGTH_LONG).show();
 
@@ -391,7 +438,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-
              switch (item.getItemId()) {
 
                  case R.id.schedule_save:
@@ -412,7 +458,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
 
         final PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager());
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        viewPager = (ViewPager) findViewById(R.id.pager);
 
         Fragment scheduleMonday = new ScheduleFragment(monday,group);
         Fragment scheduleTuesday = new ScheduleFragment(tuesday,group);
@@ -427,9 +472,24 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         adapter.addFragment(scheduleFriday, "П'ятниця");
         viewPager.setAdapter(adapter);
 
+        if (isFirstCallViewPager)
+        {
+            tabPosition = getCurrentDay();
+            isFirstCallViewPager = false;
+        }
+        viewPager.setCurrentItem(tabPosition);
+
         assert tabLayout != null;
         tabLayout.setupWithViewPager(viewPager);
 
+    }
+
+    public int getCurrentDay()
+    {
+        Calendar c1 = Calendar.getInstance();
+        int dayOfWeek = c1.get(Calendar.DAY_OF_WEEK);
+        if (dayOfWeek==1 || dayOfWeek==7) dayOfWeek=2;
+        return dayOfWeek;
     }
 
 
@@ -491,8 +551,8 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
             case 0:
                 showSchedule(scheduleForFirstWeek);
                 setupViewPager();
-
                 break;
+
             case 1:
                 showSchedule(scheduleForSecondWeek);
                 setupViewPager();
@@ -528,7 +588,5 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         return true;
     }
 }
-
-
 
 

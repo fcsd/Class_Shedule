@@ -90,7 +90,7 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
 
         if (prefs.contains(TeacherName + "_size"))
         {
@@ -212,18 +212,21 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
     @Override
     public void processFinish(Map<Integer, ArrayList<String>> map) {
 
-        TeacherInfo = map.get(1);
-        TeacherPhoto = map.get(2);
+        if (!map.isEmpty())
+        {
+            TeacherInfo = map.get(1);
+            TeacherPhoto = map.get(2);
 
-        bitmap=getBitmapFromURL(TeacherPhoto.get(0));
+            bitmap=getBitmapFromURL(TeacherPhoto.get(0));
 
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("YourApp", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(TeacherName + " + img", encodeTobase64(bitmap));
-        editor.commit();
+            SharedPreferences prefs = getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(TeacherName + " + img", encodeTobase64(bitmap));
+            editor.commit();
 
-        GroupActivity.saveArrayListToSP(getApplicationContext(),TeacherInfo,TeacherName);
-        showRecyclerView();
-
+            GroupActivity.saveArrayListToSP(getApplicationContext(),TeacherInfo,TeacherName);
+            showRecyclerView();
+        }
+        else Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
     }
 }

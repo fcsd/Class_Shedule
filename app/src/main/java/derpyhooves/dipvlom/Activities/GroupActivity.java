@@ -46,9 +46,6 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
     private RecyclerView.LayoutManager mLayoutManager;
 
     private String URLS[];
-    private ArrayList<ArrayList<String>> GroupLinks = new ArrayList<>();
-    private ArrayList<ArrayList<String>> GroupNames = new ArrayList<>();
-    private Map<Integer, ArrayList<String>> map = new HashMap<>();
 
     private ArrayList<String> getNames = new ArrayList<>();
     private ArrayList<String> getLinks = new ArrayList<>();
@@ -61,6 +58,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
     DrawerLayout drawer;
 
     private ProgressDialog dialog;
+    private int count_processFinish;
 
     SectionedRecyclerViewAdapter mSectionedAdapter;
 
@@ -92,8 +90,6 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view2);
 
-        // используем linear layout manager
-        mRecyclerView.setItemViewCacheSize(0);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(llm);
@@ -101,7 +97,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
         int position = getIntent().getIntExtra("position", 0);
 
-        SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
         if (prefs.contains(String.valueOf(position) + "_size")) {
 
             savedNames[position] = restoreArrayListFromSP(getApplicationContext(), String.valueOf(position));
@@ -371,7 +367,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
     public static void saveArrayListToSP(Context context, ArrayList<String> list, String prefix)
     {
-        SharedPreferences prefs = context.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
         int size = prefs.getInt(prefix+"_size", 0);
@@ -390,7 +386,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
     public static ArrayList<String> restoreArrayListFromSP (Context context, String prefix)
     {
-        SharedPreferences prefs = context.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
 
         int size = prefs.getInt(prefix+"_size", 0);
 
@@ -404,13 +400,15 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
     public void showGroups () {
 
-        GroupLinks.clear();
-        GroupNames.clear();
+        getNames.clear();
+        getLinks.clear();
 
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
         dialog.setMessage("Завантаження...");
         dialog.show();
+
+        count_processFinish=0;
 
         for (int i = 0; i < 6; i++) {
             jsoupAdapter mt = new jsoupAdapter(URLS[i], 1, this, this);
@@ -515,64 +513,56 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
     @Override
     public void processFinish(Map<Integer, ArrayList<String>> map) {
 
-        int position = getIntent().getIntExtra("position", 0);
-
-        SharedPreferences prefs = this.getSharedPreferences("YourApp", Context.MODE_PRIVATE);
-        int count_processFinish=prefs.getInt("count_processFinish",0);
         count_processFinish++;
 
-        GroupLinks.add(map.get(1));
-        GroupNames.add(map.get(2));
-
-        getNames.clear();
-        getLinks.clear();
-
-        for (int i = 0; i < GroupNames.size(); i++) {
-            for (int j = 0; j < GroupNames.get(i).size(); j++) {
-                getNames.add(GroupNames.get(i).get(j));
-                getLinks.add(GroupLinks.get(i).get(j));
-            }
-        }
-
-        if (!getNames.isEmpty()) {
-            saveArrayListToSP(getApplicationContext(), getNames, String.valueOf(position));
-            saveArrayListToSP(getApplicationContext(), getLinks, String.valueOf(position + 50));
-
-            mAdapter = new RecyclerAdapter(getApplicationContext(), this, getNames);
-            List<SectionedRecyclerViewAdapter.Section> sections =
-                    new ArrayList<SectionedRecyclerViewAdapter.Section>();
-
-            ArrayList<Integer> indexOfCourses = getCourses(getNames);
-
-            String title[] = new String[]{"Перший курс", "Другий курс", "Третій курс", "Четвертий курс", "П'ятий курс", "Шостий курс"};
-            for (int i = 0; i < indexOfCourses.size(); i++)
-                sections.add(new SectionedRecyclerViewAdapter.Section(indexOfCourses.get(i), title[view.get(i)]));
-
-            //Add your adapter to the sectionAdapter
-            SectionedRecyclerViewAdapter.Section[] dummy = new SectionedRecyclerViewAdapter.Section[sections.size()];
-            mSectionedAdapter = new SectionedRecyclerViewAdapter(this, R.layout.section, R.id.section_text, mAdapter);
-            mSectionedAdapter.setSections(sections.toArray(dummy));
-
-            //Apply this adapter to the RecyclerView
-            mRecyclerView.setAdapter(mSectionedAdapter);
-
-            if (count_processFinish==6)
-            {
-                dialog.dismiss();
-                prefs.edit().putInt("count_processFinish",0);
-            }
-            else prefs.edit().putInt("count_processFinish",count_processFinish).apply();
-
-        }
-        else
+        if (!map.isEmpty())
         {
-            if (count_processFinish==6)
+            if (!map.get(1).isEmpty())
+            {
+                getLinks.addAll(map.get(1));
+                getNames.addAll(map.get(2));
+
+                if (count_processFinish==6)
+                {
+                    int position = getIntent().getIntExtra("position", 0);
+
+                    saveArrayListToSP(this, getNames, String.valueOf(position));
+                    saveArrayListToSP(this, getLinks, String.valueOf(position + 50));
+
+                    mAdapter = new RecyclerAdapter(this, this, getNames);
+                    List<SectionedRecyclerViewAdapter.Section> sections =
+                            new ArrayList<SectionedRecyclerViewAdapter.Section>();
+
+                    ArrayList<Integer> indexOfCourses = getCourses(getNames);
+
+                    String title[] = new String[]{"Перший курс", "Другий курс", "Третій курс", "Четвертий курс", "П'ятий курс", "Шостий курс"};
+                    for (int i = 0; i < indexOfCourses.size(); i++)
+                        sections.add(new SectionedRecyclerViewAdapter.Section(indexOfCourses.get(i), title[view.get(i)]));
+
+                    //Add your adapter to the sectionAdapter
+                    SectionedRecyclerViewAdapter.Section[] dummy = new SectionedRecyclerViewAdapter.Section[sections.size()];
+                    mSectionedAdapter = new SectionedRecyclerViewAdapter(this, R.layout.section, R.id.section_text, mAdapter);
+                    mSectionedAdapter.setSections(sections.toArray(dummy));
+
+                    mRecyclerView.setAdapter(mSectionedAdapter);
+                    dialog.dismiss();
+                    count_processFinish=0;
+                }
+            }
+
+            else if (count_processFinish==6)
             {
                 Toast.makeText(this, "Списку груп для вашого факультету немає!", Toast.LENGTH_LONG).show();
                 dialog.dismiss();
-                prefs.edit().putInt("count_processFinish",0).apply();
+                count_processFinish=0;
             }
-            else prefs.edit().putInt("count_processFinish",count_processFinish).apply();
+        }
+
+        else if (count_processFinish==6)
+        {
+            Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
+            dialog.dismiss();
+            count_processFinish=0;
         }
     }
 }

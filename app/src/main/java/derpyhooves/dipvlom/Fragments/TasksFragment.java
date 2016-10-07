@@ -1,6 +1,7 @@
 package derpyhooves.dipvlom.Fragments;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,6 +32,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,6 +41,7 @@ import java.util.Locale;
 
 import derpyhooves.dipvlom.Activities.GroupActivity;
 import derpyhooves.dipvlom.Activities.NewTaskActivity;
+import derpyhooves.dipvlom.Adapters.AlarmAdapter;
 import derpyhooves.dipvlom.Adapters.CardAdapter;
 import derpyhooves.dipvlom.R;
 
@@ -95,13 +98,12 @@ public class TasksFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-
         mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener(){
             @Override
             public void onItemClick(int position){
 
                 ArrayList<String> selectedTask = new ArrayList<>();
-                selectedTask.addAll(tasks.subList(position*4,position*4+4));
+                selectedTask.addAll(tasks.subList(position*5,position*5+5));
                 Intent intent = new Intent(getActivity(), NewTaskActivity.class);
                 intent.putExtra("tasks", selectedTask);
                 intent.putExtra("position", position);
@@ -115,7 +117,7 @@ public class TasksFragment extends Fragment {
             }
 
 
-        }, tasks);
+        }, tasks, true, false);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -131,8 +133,6 @@ public class TasksFragment extends Fragment {
 
                     Paint paint = new Paint();
                     Bitmap bitmap;
-
-
 
                     if (dX < 0) { // swiping left
 
@@ -156,9 +156,14 @@ public class TasksFragment extends Fragment {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+
                 int position=viewHolder.getAdapterPosition();
+
+                NotificationManager notificationManager = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(Integer.parseInt(tasks.get(position*5+4)));
+
                 tasks=GroupActivity.restoreArrayListFromSP(getContext(),"listOfTasks");
-                for (int i=0; i<4; i++) tasks.remove(position*4);
+                for (int i=0; i<5; i++) tasks.remove(position*5);
                 GroupActivity.saveArrayListToSP(getContext(),tasks,"listOfTasks");
                 updateTask();
             }
@@ -224,6 +229,11 @@ public class TasksFragment extends Fragment {
                         finalSorting(2);
                         return true;
 
+                    case R.id.sort_by_date:
+
+                        finalSorting(3);
+                        return true;
+
                     default:
                         return false;
                 }
@@ -231,17 +241,19 @@ public class TasksFragment extends Fragment {
         });
     }
 
+
     public void finalSorting(int mode)  {
 
         ArrayList<ArrayList<String>> allItems = new ArrayList<>();
 
-        for (int i=0;i<tasks.size();i+=4) allItems.add(new ArrayList<>(tasks.subList(i,i+4)));
+        for (int i=0;i<tasks.size();i+=5) allItems.add(new ArrayList<>(tasks.subList(i,i+5)));
 
         allItems=getSorting(allItems,mode);
         tasks.clear();
+
         for (int i=0; i<allItems.size();i++)
         {
-            for (int j=0;j<4;j++)
+            for (int j=0;j<5;j++)
             {
                 tasks.add(allItems.get(i).get(j));
             }
@@ -262,8 +274,6 @@ public class TasksFragment extends Fragment {
         });
         return data;
     }
-
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <derpyhooves.dipvlom.Adapters.PreferencesCategoryTitle
+        android:key="schedule"
+        android:title="РОЗКЛАД">
+
+        <SwitchPreference
+            android:key="inv"
+            android:summary="Якщо поточний тиждень визначається неправильно, натиснить сюди."
+            android:title="Інвертувати тижні">
+        </SwitchPreference>
+
+        <SwitchPreference
+            android:key="ref"
+            android:summary="Оновлення розкладу кожен день, поки він ще не утрясся."
+            android:title="Щоденне оновлення розкладу"
+            android:defaultValue="true">
+        </SwitchPreference>
+
+    </derpyhooves.dipvlom.Adapters.PreferencesCategoryTitle>
+
+</PreferenceScreen>

@@ -23,33 +23,11 @@ import derpyhooves.dipvlom.R;
 
 public class InfoFragment extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     ArrayList<Spannable> spInfo = new ArrayList<>();
-
-
-    private OnFragmentInteractionListener mListener;
-
-    public InfoFragment() {
-        // Required empty public constructor
-    }
-
-    public static InfoFragment newInstance() {
-        InfoFragment fragment = new InfoFragment();
-        Bundle args = new Bundle();
-
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-        }
     }
 
     @Override
@@ -63,7 +41,7 @@ public class InfoFragment extends Fragment {
         ImageView imageView = (ImageView) v.findViewById(R.id.imageView1);
         imageView.setImageResource(R.drawable.derp);
 
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
 
 
         // если мы уверены, что изменения в контенте не изменят размер layout-а RecyclerView
@@ -77,13 +55,14 @@ public class InfoFragment extends Fragment {
         spInfo.clear();
         String [] shmi = getDataSet();
 
-        for (int i=0; i<shmi.length; i++) getSpannableString(shmi[i]);
+        for (String aShmi : shmi) getSpannableString(aShmi);
 
-        mAdapter = new RecyclerAdapter(getContext(), new RecyclerAdapter.MyClickListenerHA(){
+        RecyclerView.Adapter mAdapter = new RecyclerAdapter(getContext(), new RecyclerAdapter.MyClickListenerHA() {
             @Override
-            public void onItemClick(int position){
+            public void onItemClick(int position) {
 
-            }}, spInfo);
+            }
+        }, spInfo);
 
 
         mRecyclerView.setAdapter(mAdapter);
@@ -102,46 +81,7 @@ public class InfoFragment extends Fragment {
     }
 
     private String[] getDataSet() {
-        String[] mDataSet = getResources().getStringArray(R.array.info);
-        return mDataSet;
+        return getResources().getStringArray(R.array.info);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 }

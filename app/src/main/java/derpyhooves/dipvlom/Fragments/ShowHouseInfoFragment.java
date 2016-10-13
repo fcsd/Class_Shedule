@@ -1,5 +1,6 @@
 package derpyhooves.dipvlom.Fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -23,14 +24,10 @@ import derpyhooves.dipvlom.Adapters.SectionedRecyclerViewAdapter;
 import derpyhooves.dipvlom.R;
 
 
+@SuppressLint("ValidFragment")
 public class ShowHouseInfoFragment extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
     ArrayList<Spannable> mInfo = new ArrayList<>();
-
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     public ShowHouseInfoFragment(ArrayList<Spannable> info) {
         mInfo=info;
@@ -50,7 +47,7 @@ public class ShowHouseInfoFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_show_house_info, container, false);
 
 
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
 
         // если мы уверены, что изменения в контенте не изменят размер layout-а RecyclerView
         // передаем параметр true - это увеличивает производительность
@@ -58,36 +55,14 @@ public class ShowHouseInfoFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new RecyclerAdapter(getContext(), new RecyclerAdapter.MyClickListenerHA(){
+        RecyclerView.Adapter mAdapter = new RecyclerAdapter(getContext(), new RecyclerAdapter.MyClickListenerHA() {
             @Override
-            public void onItemClick(int position){
+            public void onItemClick(int position) {
 
-            }}, mInfo);
+            }
+        }, mInfo);
 
         mRecyclerView.setAdapter(mAdapter);
-
         return v;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

@@ -20,8 +20,8 @@
             android:title="Учбові корпуси" />
         <item
             android:id="@+id/nav_share"
-            android:icon="@drawable/ic_menu_share"
-            android:title="Про ХПІ" />
+            android:icon="@drawable/ic_setting_light"
+            android:title="Налаштування" />
         <item
             android:id="@+id/nav_send"
             android:icon="@drawable/ic_menu_send"

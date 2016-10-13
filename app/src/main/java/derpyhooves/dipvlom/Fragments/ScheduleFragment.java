@@ -25,18 +25,13 @@ import derpyhooves.dipvlom.Activities.SubjectActivity;
 import derpyhooves.dipvlom.Adapters.CardAdapter;
 import derpyhooves.dipvlom.R;
 
+@SuppressLint("ValidFragment")
 public class ScheduleFragment extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
-    private OnFragmentInteractionListener mListener;
     private ArrayList<String> mData;
     private String mGroup;
 
 
-    @SuppressLint("ValidFragment")
     public ScheduleFragment(ArrayList<String> data, String group) {
 
         mData=data;
@@ -56,16 +51,16 @@ public class ScheduleFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_schedule, container, false);
 
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
-        mLayoutManager = new LinearLayoutManager(getContext());
+        RecyclerView mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener(){
+        RecyclerView.Adapter mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener() {
             @Override
-            public void onItemClick(int position){
+            public void onItemClick(int position) {
 
                 ArrayList<String> selectedSubject = new ArrayList<>();
-                selectedSubject.addAll(mData.subList(position*4,position*4+4));
+                selectedSubject.addAll(mData.subList(position * 4, position * 4 + 4));
 
                 Intent intent = new Intent(getActivity(), SubjectActivity.class);
                 intent.putExtra("subject", selectedSubject);
@@ -85,23 +80,5 @@ public class ScheduleFragment extends Fragment {
 
         // Inflate the layout for this fragment
         return v;
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

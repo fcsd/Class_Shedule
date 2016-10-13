@@ -1,16 +1,10 @@
 package derpyhooves.dipvlom.Fragments;
 
-import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -26,51 +20,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.io.File;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.Locale;
 
 import derpyhooves.dipvlom.Activities.GroupActivity;
 import derpyhooves.dipvlom.Activities.NewTaskActivity;
-import derpyhooves.dipvlom.Adapters.AlarmAdapter;
 import derpyhooves.dipvlom.Adapters.CardAdapter;
 import derpyhooves.dipvlom.R;
 
 
 public class TasksFragment extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<String> tasks;
-
     private ArrayList<String> keysOfGroups = new ArrayList<>();
-
-    private OnFragmentInteractionListener mListener;
-    Activity parentActivity;
     View v;
 
     final int REQUEST_SAVE_NEW_TASK = 1;
-
-    public TasksFragment() {
-        // Required empty public constructor
-    }
-
-
-    // TODO: Rename and change types and number of parameters
-    public static TasksFragment newInstance() {
-        TasksFragment fragment = new TasksFragment();
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,16 +60,16 @@ public class TasksFragment extends Fragment {
 
         keysOfGroups= GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"keysOfGroup");
 
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
-        mLayoutManager = new LinearLayoutManager(getContext());
+        RecyclerView mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener(){
+        RecyclerView.Adapter mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener() {
             @Override
-            public void onItemClick(int position){
+            public void onItemClick(int position) {
 
                 ArrayList<String> selectedTask = new ArrayList<>();
-                selectedTask.addAll(tasks.subList(position*5,position*5+5));
+                selectedTask.addAll(tasks.subList(position * 5, position * 5 + 5));
                 Intent intent = new Intent(getActivity(), NewTaskActivity.class);
                 intent.putExtra("tasks", selectedTask);
                 intent.putExtra("position", position);
@@ -159,9 +125,7 @@ public class TasksFragment extends Fragment {
 
                 int position=viewHolder.getAdapterPosition();
 
-                NotificationManager notificationManager = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.cancel(Integer.parseInt(tasks.get(position*5+4)));
-
+                NewTaskActivity.deleteNotification(getContext(),Integer.parseInt(tasks.get(position*5+4)));
                 tasks=GroupActivity.restoreArrayListFromSP(getContext(),"listOfTasks");
                 for (int i=0; i<5; i++) tasks.remove(position*5);
                 GroupActivity.saveArrayListToSP(getContext(),tasks,"listOfTasks");
@@ -273,36 +237,5 @@ public class TasksFragment extends Fragment {
             }
         });
         return data;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    public void backButtonWasPressed() {
-        parentActivity.finish();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof Activity){
-            parentActivity=(Activity) context;
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

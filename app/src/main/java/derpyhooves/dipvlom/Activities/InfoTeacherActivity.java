@@ -49,14 +49,8 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
     private String TeacherName;
     private String TeacherLink;
     private ArrayList<String> TeacherInfo;
-    private ArrayList<String> TeacherPhoto;
     ArrayList<Spannable> spTeacherInfo = new ArrayList<>();
     Bitmap bitmap;
-    private Map<Integer, ArrayList<String>> map = new HashMap<>();
-
-    private RecyclerView mRecyclerView;
-    private android.support.v7.widget.RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     DrawerLayout drawer;
 
@@ -108,7 +102,7 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
         mImg = (ImageView) findViewById(R.id.imageView1);
         mImg.setImageBitmap(bitmap);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view1);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view1);
 
         // если мы уверены, что изменения в контенте не изменят размер layout-а RecyclerView
         // передаем параметр true - это увеличивает производительность
@@ -119,11 +113,12 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
         for (int i=0;i<TeacherInfo.size();i++) getSpannableString(TeacherInfo.get(i));
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new RecyclerAdapter(this, new RecyclerAdapter.MyClickListenerHA(){
+        RecyclerView.Adapter mAdapter = new RecyclerAdapter(this, new RecyclerAdapter.MyClickListenerHA() {
             @Override
-            public void onItemClick(int position){
+            public void onItemClick(int position) {
 
-            }}, spTeacherInfo);
+            }
+        }, spTeacherInfo);
 
         mRecyclerView.setAdapter(mAdapter);
     }
@@ -162,8 +157,7 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
+            return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
             // Log exception
             return null;
@@ -172,9 +166,8 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
 
 
     public static String encodeTobase64(Bitmap image) {
-        Bitmap immage = image;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immage.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        image.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] b = baos.toByteArray();
         String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
 
@@ -215,14 +208,14 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
         if (!map.isEmpty())
         {
             TeacherInfo = map.get(1);
-            TeacherPhoto = map.get(2);
+            ArrayList<String> teacherPhoto = map.get(2);
 
-            bitmap=getBitmapFromURL(TeacherPhoto.get(0));
+            bitmap=getBitmapFromURL(teacherPhoto.get(0));
 
             SharedPreferences prefs = getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(TeacherName + " + img", encodeTobase64(bitmap));
-            editor.commit();
+            editor.apply();
 
             GroupActivity.saveArrayListToSP(getApplicationContext(),TeacherInfo,TeacherName);
             showRecyclerView();

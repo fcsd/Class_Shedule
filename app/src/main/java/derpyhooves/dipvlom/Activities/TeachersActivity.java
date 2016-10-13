@@ -27,17 +27,15 @@ import derpyhooves.dipvlom.Adapters.RecyclerAdapter;
 import derpyhooves.dipvlom.Adapters.jsoupAdapter;
 import derpyhooves.dipvlom.R;
 
-public class TeachersActivity extends AppCompatActivity implements RecyclerAdapter.MyClickListenerGA, NavigationView.OnNavigationItemSelectedListener,
-        jsoupAdapter.AsyncResponse{
+public class TeachersActivity extends AppCompatActivity implements RecyclerAdapter.MyClickListenerGA,
+        NavigationView.OnNavigationItemSelectedListener, jsoupAdapter.AsyncResponse{
 
     private RecyclerView mRecyclerView;
     private android.support.v7.widget.RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     private int position;
     private String URLS[];
     private String kathedra;
-    private Map<Integer, ArrayList<String>> map = new HashMap<>();
     private ArrayList<String> TeacherLinks = new ArrayList<>();
     private ArrayList<String> TeacherNames = new ArrayList<>();
 

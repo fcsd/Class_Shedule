@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -38,7 +39,7 @@ import derpyhooves.dipvlom.Fragments.ScheduleFragment;
 import derpyhooves.dipvlom.R;
 
 
-public class ScheduleActivity extends AppCompatActivity implements ScheduleFragment.OnFragmentInteractionListener,
+public class ScheduleActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener, NavigationView.OnNavigationItemSelectedListener, jsoupAdapter.AsyncResponse {
 
     private String group;
@@ -57,12 +58,15 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     private boolean isCurrentGroupSaved = false;
     private boolean isUpdateSchedule = false;
     private boolean isFirstCallViewPager = true;
+    private boolean isLoadingSucess = true;
 
     private MenuItem mSaveSchedule;
     private MenuItem mEditSchedule;
+    private MenuItem mUpdateSchedule;
 
     private int indexOfUpdateSchedule;
     private int tabPosition;
+    private Spinner mSpinner;
 
     final int REQUEST_SAVE_NEW_TASK = 1;
     ViewPager viewPager;
@@ -93,8 +97,20 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
                 isUpdateSchedule = false;
             }
 
+            Calendar c1 = Calendar.getInstance();
+            int currentDayOfYear = c1.get(Calendar.DAY_OF_YEAR);
+            SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+            prefs.edit().putInt(group + "ref", currentDayOfYear).apply();
+            isLoadingSucess = true;
+            invalidateOptionsMenu();
+
         }
-        else Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
+        else
+        {
+            Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
+            isLoadingSucess = false;
+            invalidateOptionsMenu();
+        }
     }
 
 
@@ -118,14 +134,13 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         }
         toggle.syncState();
 
-        Spinner mSpinner = new Spinner(getSupportActionBar().getThemedContext());
+        mSpinner = new Spinner(getSupportActionBar().getThemedContext());
         String[] frags = getResources().getStringArray(R.array.weeks);
 
         ArrayAdapter mAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_dropdown_item, R.id.text1, frags);
 
         mAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         mSpinner.setAdapter(mAdapter);
-        mSpinner.setSelection(0);
 
         mSpinner.setOnItemSelectedListener(this);
         toolbar.addView(mSpinner);
@@ -137,34 +152,65 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
-        SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isEverydayUpdateEnabled = prefs.getBoolean("ref", false);
+
+        Calendar c1 = Calendar.getInstance();
+        int currentDayOfYear = c1.get(Calendar.DAY_OF_YEAR);
 
         if (mode==1)
         {
             link = getIntent().getStringExtra("link");
             group = getIntent().getStringExtra("group");
+
+            prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+            int lastDayUpdateSchedule = prefs.getInt(group + "ref", 0);
+
             setTitle(group);
             if(prefs.contains(group+"_size"))
             {
-                allSchedule=GroupActivity.restoreArrayListFromSP(this,group);
-                for (int i=0; i<allSchedule.size()/2; i++) scheduleForFirstWeek.add(allSchedule.get(i));
-                for (int i=allSchedule.size()/2; i<allSchedule.size(); i++) scheduleForSecondWeek.add(allSchedule.get(i));
                 isCurrentGroupSaved=true;
+                if (isEverydayUpdateEnabled && lastDayUpdateSchedule!=currentDayOfYear && GroupActivity.hasConnection(this))
+                {
+                    isUpdateSchedule = true;
+                    everyDayUpdateSchedule();
+                }
+
+                else
+                {
+                    allSchedule=GroupActivity.restoreArrayListFromSP(this,group);
+                    for (int i=0; i<allSchedule.size()/2; i++) scheduleForFirstWeek.add(allSchedule.get(i));
+                    for (int i=allSchedule.size()/2; i<allSchedule.size(); i++) scheduleForSecondWeek.add(allSchedule.get(i));
+                }
 
             } else updateSchedule();
         }
 
         if (mode==2)
         {
+            isCurrentGroupSaved = true;
             int position = getIntent().getIntExtra("position", 0);
-            ArrayList<String> keysOfSavedSchedule=GroupActivity.restoreArrayListFromSP(this,"keysOfGroup");
-            group=keysOfSavedSchedule.get(position);
+            ArrayList<String> keysOfSavedSchedule = GroupActivity.restoreArrayListFromSP(this, "keysOfGroup");
+            group = keysOfSavedSchedule.get(position);
             setTitle(group);
 
-            allSchedule=GroupActivity.restoreArrayListFromSP(this,group);
-            scheduleForFirstWeek.addAll((allSchedule.subList(0,allSchedule.size()/2)));
-            scheduleForSecondWeek.addAll((allSchedule.subList(allSchedule.size()/2,allSchedule.size())));
-            isCurrentGroupSaved=true;
+            prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+            int lastDayUpdateSchedule = prefs.getInt(group + "ref", 0);
+
+            if (isEverydayUpdateEnabled && lastDayUpdateSchedule!=currentDayOfYear && GroupActivity.hasConnection(this))
+            {
+                ArrayList<String> linksOfSavedSchedule=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"linksOfGroup");
+                indexOfUpdateSchedule=keysOfSavedSchedule.indexOf(group);
+                link= linksOfSavedSchedule.get(indexOfUpdateSchedule);
+                isUpdateSchedule = true;
+                everyDayUpdateSchedule();
+            }
+            else
+            {
+                allSchedule = GroupActivity.restoreArrayListFromSP(this, group);
+                scheduleForFirstWeek.addAll((allSchedule.subList(0, allSchedule.size() / 2)));
+                scheduleForSecondWeek.addAll((allSchedule.subList(allSchedule.size() / 2, allSchedule.size())));
+            }
         }
 
         viewPager = (ViewPager) findViewById(R.id.pager);
@@ -172,6 +218,7 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
 
             @Override
             public void onPageSelected(int arg0) {
+
                 tabPosition = arg0;
             }
 
@@ -194,9 +241,20 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         {
             jsoupAdapter mt = new jsoupAdapter(link, 2, this, this);
             mt.execute();
-
         }
-        else Toast.makeText(this, "Нет соединения с интернетом!", Toast.LENGTH_LONG).show();
+        else
+        {
+            Toast.makeText(this, "Нет соединения с интернетом!", Toast.LENGTH_LONG).show();
+            isLoadingSucess = false;
+        }
+    }
+
+
+    public void everyDayUpdateSchedule()
+    {
+        //invalidateOptionsMenu();
+        jsoupAdapter mt = new jsoupAdapter(link, 2, this, this);
+        mt.execute();
     }
 
     public void showPopup1(){
@@ -265,11 +323,14 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater inflater = getMenuInflater();
-        if (isCurrentGroupSaved) inflater.inflate(R.menu.activity_schedule_edit, menu);
+
+        if (!isLoadingSucess) inflater.inflate(R.menu.activity_group, menu);
+        else if (isCurrentGroupSaved) inflater.inflate(R.menu.activity_schedule_edit, menu);
         else inflater.inflate(R.menu.activity_schedule_save, menu);
 
         mSaveSchedule = menu.findItem(R.id.schedule_save);
         mEditSchedule = menu.findItem(R.id.schedule_edit);
+        mUpdateSchedule = menu.findItem(R.id.update);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -279,7 +340,8 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     {
         super.onPrepareOptionsMenu(menu);
 
-        if (isCurrentGroupSaved) mEditSchedule.setVisible(true);
+        if (!isLoadingSucess) mUpdateSchedule.setVisible(true);
+        else if (isCurrentGroupSaved) mEditSchedule.setVisible(true);
         else mSaveSchedule.setVisible(true);
         return true;
     }
@@ -366,6 +428,7 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         ArrayList<String> linksOfSavedSchedule;
         SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
         prefs.edit().remove(group+"_size").apply();
+        prefs.edit().remove(group+"ref").apply();
 
         keysOfSavedSchedule=GroupActivity.restoreArrayListFromSP(this,"keysOfGroup");
         int removeIndex=keysOfSavedSchedule.indexOf(group);
@@ -391,11 +454,7 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
             {
                 for (int j=0;j<5;j++)
                 {
-                    if (i==5)
-                    {
-                        NotificationManager notificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
-                        notificationManager.cancel(Integer.parseInt(tasks.get(i*5)));
-                    }
+                    if (j==4) NewTaskActivity.deleteNotification(getApplicationContext(),Integer.parseInt(tasks.get(i*5)));
                     tasks.remove(i*5);
                 }
                 i-=5;
@@ -429,7 +488,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
                 allSchedule=GroupActivity.restoreArrayListFromSP(this,group);
                 for (int i=0; i<allSchedule.size()/2; i++) scheduleForFirstWeek.add(allSchedule.get(i));
                 for (int i=allSchedule.size()/2; i<allSchedule.size(); i++) scheduleForSecondWeek.add(allSchedule.get(i));
-                showSchedule(scheduleForFirstWeek);
                 setupViewPager();
             }
         }
@@ -446,6 +504,20 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
 
                  case R.id.schedule_edit:
                      showPopup2();
+                     return true;
+
+                 case R.id.update:
+
+                     if (isCurrentGroupSaved)
+                     {
+                         ArrayList<String> keysOfSavedSchedule=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"keysOfGroup");
+                         ArrayList<String> linksOfSavedSchedule=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"linksOfGroup");
+                         indexOfUpdateSchedule=keysOfSavedSchedule.indexOf(group);
+                         link= linksOfSavedSchedule.get(indexOfUpdateSchedule);
+                     }
+
+                     isUpdateSchedule=true;
+                     updateSchedule();
                      return true;
 
                  default:
@@ -488,8 +560,30 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     {
         Calendar c1 = Calendar.getInstance();
         int dayOfWeek = c1.get(Calendar.DAY_OF_WEEK);
-        if (dayOfWeek==1 || dayOfWeek==7) dayOfWeek=2;
+        if (dayOfWeek==1 || dayOfWeek==7)
+        {
+            dayOfWeek=0;
+            mSpinner.setSelection((getCurrentWeek()+1)%2);
+        }
+        else
+        {
+            dayOfWeek-=2;
+            mSpinner.setSelection(getCurrentWeek());
+        }
         return dayOfWeek;
+    }
+
+    public int getCurrentWeek()
+    {
+        Calendar c1 = Calendar.getInstance();
+        int currentWeek = c1.get(Calendar.WEEK_OF_YEAR);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean value = prefs.getBoolean("inv", false);
+
+        if(value)currentWeek++;
+        currentWeek=currentWeek%2;
+        return currentWeek;
     }
 
 
@@ -540,11 +634,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
-    @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
         switch (position) {
@@ -580,7 +669,6 @@ public class ScheduleActivity extends AppCompatActivity implements ScheduleFragm
         else if (id == R.id.nav_manage) request=13;
         else if (id == R.id.nav_share) request=14;
         else if (id == R.id.nav_send) request=15;
-
 
         drawer.closeDrawer(GravityCompat.START);
         intent.putExtra("request", request);

@@ -21,23 +21,6 @@ import derpyhooves.dipvlom.R;
 
 public class KathedralFragment extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private OnFragmentInteractionListener mListener;
-    Activity parentActivity;
-    View v;
-
-    public KathedralFragment() {
-        // Required empty public constructor
-    }
-
-
-    public static KathedralFragment newInstance(String param1, String param2) {
-        KathedralFragment fragment = new KathedralFragment();
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,10 +30,10 @@ public class KathedralFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.fragment_kathedral, container, false);
+        View v = inflater.inflate(R.layout.fragment_kathedral, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Кафедри");
 
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
 
 
         // если мы уверены, что изменения в контенте не изменят размер layout-а RecyclerView
@@ -60,49 +43,27 @@ public class KathedralFragment extends Fragment {
 
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new RecyclerAdapter(getContext(), new RecyclerAdapter.MyClickListenerDA(){
+        RecyclerView.Adapter mAdapter = new RecyclerAdapter(getContext(), new RecyclerAdapter.MyClickListenerDA() {
             @Override
-            public void onItemClick(int position){
+            public void onItemClick(int position) {
                 Intent intent = new Intent(getContext(), TeachersActivity.class);
                 intent.putExtra("position", position);
-                intent.putExtra("kathedra", currentData(position,getDataSet()));
+                intent.putExtra("kathedra", currentData(position, getDataSet()));
                 startActivity(intent);
 
-            }}, getDataSet());
+            }
+        }, getDataSet());
 
         mRecyclerView.setAdapter(mAdapter);
         return v;
     }
 
     private String[] getDataSet() {
-        String[] mDataSet = getResources().getStringArray(R.array.Kathedral);
-        return mDataSet;
+        return getResources().getStringArray(R.array.Kathedral);
     }
 
     private String currentData(int position, String[] mDataSet) {
         return mDataSet[position];
     }
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 }

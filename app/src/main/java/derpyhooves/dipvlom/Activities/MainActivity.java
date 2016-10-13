@@ -1,18 +1,11 @@
 package derpyhooves.dipvlom.Activities;
 
-import android.app.AlarmManager;
 import android.app.FragmentManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,22 +18,16 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import derpyhooves.dipvlom.Adapters.AlarmAdapter;
 import derpyhooves.dipvlom.Fragments.HousingFragment;
 import derpyhooves.dipvlom.Fragments.InfoFragment;
-import derpyhooves.dipvlom.Fragments.KHPIFragment;
 import derpyhooves.dipvlom.Fragments.MainFragment;
+import derpyhooves.dipvlom.Fragments.PreferencesFragment;
 import derpyhooves.dipvlom.Fragments.TasksFragment;
 import derpyhooves.dipvlom.Fragments.KathedralFragment;
 import derpyhooves.dipvlom.R;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, MainFragment.OnFragmentInteractionListener,
-        TasksFragment.OnFragmentInteractionListener, HousingFragment.OnFragmentInteractionListener,
-        KathedralFragment.OnFragmentInteractionListener, KHPIFragment.OnFragmentInteractionListener,
-        InfoFragment.OnFragmentInteractionListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-
     private GoogleApiClient client;
     public DrawerLayout drawer;
 
@@ -48,7 +35,7 @@ public class MainActivity extends AppCompatActivity
     TasksFragment tf = new TasksFragment();
     HousingFragment hf = new HousingFragment();
     KathedralFragment kf = new KathedralFragment();
-    KHPIFragment khf = new KHPIFragment();
+    PreferencesFragment khf = new PreferencesFragment();
     InfoFragment inf = new InfoFragment();
 
     final int REQUEST_SAVE_NEW_TASK = 1;
@@ -111,7 +98,7 @@ public class MainActivity extends AppCompatActivity
             }
             if (requestCode == REQUEST_LAUNCH_KHPI_FRAGMENT) {
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                getSupportFragmentManager().beginTransaction().replace(R.id.khpi_fragment, khf).addToBackStack(null).commit();
+                getFragmentManager().beginTransaction().replace(R.id.settings_fragment, khf).addToBackStack(null).commit();
                 getFlags(4);
             }
             if (requestCode == REQUEST_LAUNCH_INFO_FRAGMENT) {
@@ -141,10 +128,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     public void onBackPressed() {
-        mf.backButtonWasPressed();
+        finish();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -157,6 +143,7 @@ public class MainActivity extends AppCompatActivity
 
             if (!fragmentLaunched[0])
             {
+                getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment, mf).addToBackStack(null).commit();
                 getFlags(0);
@@ -166,6 +153,7 @@ public class MainActivity extends AppCompatActivity
 
             if (!fragmentLaunched[1])
             {
+                getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.kathedral_fragment, kf).addToBackStack(null).commit();
                 getFlags(1);
@@ -176,6 +164,7 @@ public class MainActivity extends AppCompatActivity
 
             if (!fragmentLaunched[2])
             {
+                getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.tasks_fragment, tf).addToBackStack(null).commit();
                 getFlags(2);
@@ -185,6 +174,7 @@ public class MainActivity extends AppCompatActivity
 
             if (!fragmentLaunched[3])
             {
+                getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.housing_fragment, hf).addToBackStack(null).commit();
                 getFlags(3);
@@ -195,7 +185,7 @@ public class MainActivity extends AppCompatActivity
             if (!fragmentLaunched[4])
             {
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                getSupportFragmentManager().beginTransaction().replace(R.id.khpi_fragment, khf).addToBackStack(null).commit();
+                getFragmentManager().beginTransaction().replace(R.id.settings_fragment, khf).addToBackStack(null).commit();
                 getFlags(4);
             }
 
@@ -203,6 +193,7 @@ public class MainActivity extends AppCompatActivity
 
             if (!fragmentLaunched[5])
             {
+                getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 getSupportFragmentManager().beginTransaction().replace(R.id.info_fragment, inf).addToBackStack(null).commit();
                 getFlags(5);
@@ -218,50 +209,5 @@ public class MainActivity extends AppCompatActivity
     public void getFlags(int position)
     {
         for (int i=0; i<fragmentLaunched.length; i++) fragmentLaunched[i] = i == position;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content_new_schedule shown.
-                // TODO: If you have web page content_new_schedule that matches this app activity's content_new_schedule,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://derpyhooves.dipvlom/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content_new_schedule shown.
-                // TODO: If you have web page content_new_schedule that matches this app activity's content_new_schedule,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://derpyhooves.dipvlom/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 }

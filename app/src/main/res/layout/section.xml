@@ -7,9 +7,10 @@
     android:paddingLeft="10dp"
     android:singleLine="true"
     android:textAllCaps="true"
-    android:text="456"
+    android:text="SECTION"
     android:background="@android:color/transparent"
     android:textSize="18sp"
+    android:textColor="@color/colorPrimary"
     android:id="@+id/section_text"
     android:textStyle="bold"/>
 

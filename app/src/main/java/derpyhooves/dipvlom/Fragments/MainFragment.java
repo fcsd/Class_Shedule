@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -16,11 +15,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import derpyhooves.dipvlom.Activities.DepartmentActivity;
 import derpyhooves.dipvlom.Activities.GroupActivity;
@@ -35,29 +38,10 @@ public class MainFragment extends Fragment {
 
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
-    private ArrayList<String> keysOfGroups = new ArrayList<>();
-    private ArrayList<String> typesOfGroups = new ArrayList<>();
-    private ArrayList<String> viewGroup = new ArrayList<>();
-
+    private TextView textView;
     SectionedRecyclerViewAdapter mSectionedAdapter;
-    private OnFragmentInteractionListener mListener;
 
-    Activity parentActivity;
     final int REQUEST_SAVE_NEW_SCHEDULE = 2;
-
-    public MainFragment() {
-        // Required empty public constructor
-    }
-
-
-
-    public static MainFragment newInstance() {
-        MainFragment fragment = new MainFragment();
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,28 +58,127 @@ public class MainFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Збережені групи");
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
-        mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
-
         Boolean isMyGroupSaved = prefs.getBoolean("isMyGroupSaved", false);
+
+        textView = (TextView) v.findViewById(R.id.time_text);
+        ScrollView view = (ScrollView) v.findViewById(R.id.scrollViewMF);
+        view.requestFocus();
+
         updateGroup(isMyGroupSaved);
         return v;
     }
 
+    public ArrayList<String> saveConstantTime()
+    {
+        ArrayList<String> constTimeInMillis = new ArrayList<>();
+
+        constTimeInMillis.add(constantTimeInMillis("8:30"));
+        constTimeInMillis.add(constantTimeInMillis("10:05"));
+        constTimeInMillis.add(constantTimeInMillis("10:25"));
+        constTimeInMillis.add(constantTimeInMillis("12:00"));
+        constTimeInMillis.add(constantTimeInMillis("12:35"));
+        constTimeInMillis.add(constantTimeInMillis("14:10"));
+        constTimeInMillis.add(constantTimeInMillis("14:30"));
+        constTimeInMillis.add(constantTimeInMillis("16:05"));
+        constTimeInMillis.add(constantTimeInMillis("16:25"));
+        constTimeInMillis.add(constantTimeInMillis("18:00"));
+        constTimeInMillis.add(constantTimeInMillis("18:10"));
+        constTimeInMillis.add(constantTimeInMillis("19:45"));
+
+        GroupActivity.saveArrayListToSP(getContext(),constTimeInMillis,"constTimeInMillis");
+        return constTimeInMillis;
+    }
+
+
+    public String constantTimeInMillis (String data)
+    {
+        String[] replace=data.split(":");
+        long currentTime = Long.parseLong(replace[0]) * 60 + Long.parseLong(replace[1]);
+        return String.valueOf(currentTime);
+    }
+
+
+    public void getText()
+    {
+        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+
+        Calendar c1 = Calendar.getInstance();
+
+        long currentTime = c1.get(Calendar.HOUR_OF_DAY) * 60 + c1.get(Calendar.MINUTE);
+
+        ArrayList<String> constTimeInMillis;
+
+        if (prefs.contains("constTimeInMillis")) constTimeInMillis=GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"constTimeInMillis");
+        else constTimeInMillis=saveConstantTime();
+
+        boolean isCouple=false;
+        boolean isBreak=false;
+
+        long minutesCoupleEnded = 0;
+        int couple = 0;
+
+        int dayOfWeek = c1.get(Calendar.DAY_OF_WEEK);
+        if (dayOfWeek!=1 && dayOfWeek!=7)
+        {
+            for (int i=0;i<constTimeInMillis.size();i+=2)
+            {
+                long startTime = Long.parseLong(constTimeInMillis.get(i));
+                long endTime = Long.parseLong(constTimeInMillis.get(i+1));
+
+                if  (currentTime >= startTime && currentTime < endTime)
+                {
+                    minutesCoupleEnded = endTime - currentTime;
+                    couple = i/2+1;
+                    isCouple=true;
+                    break;
+                }
+
+                if (i!=10)
+                {
+                    long startNextCouple = Long.parseLong(constTimeInMillis.get(i+2));
+                    if  (currentTime >= endTime && currentTime < startNextCouple)
+                    {
+                        minutesCoupleEnded = startNextCouple - currentTime;
+                        isBreak=true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        String concateString;
+        if (isCouple)
+        {
+            concateString = "Триває " + couple + " пара. До завершення " + minutesCoupleEnded + " хв.";
+            textView.setText(concateString);
+        }
+        else if (isBreak)
+        {
+            concateString = "Триває перерва. До завершення " + minutesCoupleEnded + " хв.";
+            textView.setText(concateString);
+        }
+        else textView.setText("Поточної пари немає.");
+
+    }
+
     public void updateGroup(boolean isMyGroupSaved)
     {
-        keysOfGroups= GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"keysOfGroup");
-        typesOfGroups=GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"typesOfGroup");
-        viewGroup=toNormalGroup(keysOfGroups,typesOfGroups);
+        ArrayList<String> keysOfGroups = GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(), "keysOfGroup");
+        ArrayList<String> typesOfGroups = GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(), "typesOfGroup");
+        ArrayList<String> viewGroup = toNormalGroup(keysOfGroups, typesOfGroups);
+
+        getText();
 
 
-        mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener(){
+        RecyclerView.Adapter mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener() {
             @Override
-            public void onItemClick(int position){
+            public void onItemClick(int position) {
 
-                position=mSectionedAdapter.sectionedPositionToPosition(position);
+                position = mSectionedAdapter.sectionedPositionToPosition(position);
                 Intent intent = new Intent(getContext(), ScheduleActivity.class);
 
                 intent.putExtra("position", position);
@@ -137,7 +220,7 @@ public class MainFragment extends Fragment {
 
     public String getSrtingDepartment(String department)
     {
-        String currentDepartment = new String();
+        String currentDepartment = "";
         switch (department)
         {
             case "АП":
@@ -221,7 +304,7 @@ public class MainFragment extends Fragment {
 
     public String getStringCourse(int course)
     {
-        String currentCourse = new String();
+        String currentCourse = "";
         switch (course)
         {
             case 1:
@@ -254,7 +337,7 @@ public class MainFragment extends Fragment {
 
     public String getStringType(String type)
     {
-        String currentType= new String();
+        String currentType= "";
         switch (type)
         {
             case "осінньому":
@@ -284,19 +367,26 @@ public class MainFragment extends Fragment {
 
         for (int i=0;i<data.size();i++)
         {
-            buf=data.get(i).toString();
+            buf= data.get(i);
+            int reverseOffset=0;
             String[] s = buf.split("-");
             // название факультета
             String department=getSrtingDepartment(s[0]);
             // курс
-            buf= String.valueOf(s[1].charAt(1));
+
+            Pattern p = Pattern.compile("[\\p{L}]", Pattern.UNICODE_CASE);
+            Matcher m = p.matcher(s[1]);
+            while (m.find()) reverseOffset++;
+
+            buf= String.valueOf(s[1].charAt(s[1].length()-reverseOffset-1));
             int yearAdmision = Integer.parseInt(buf);
             if (currentYear < yearAdmision) currentYear+=10;
             currentCourse=currentYear-yearAdmision;
-            if (currentMonth>=8) currentCourse++;
+            if (currentMonth>=7) currentCourse++;
             String course=getStringCourse(currentCourse);
+
             // тип
-            buf=type.get(i).toString();
+            buf=type.get(i);
             buf=getStringType(buf);
 
             normalViewGroup.add(data.get(i));
@@ -326,36 +416,5 @@ public class MainFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public void backButtonWasPressed() {
-        parentActivity.finish();
-    }
-
-
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof Activity){
-            parentActivity=(Activity) context;
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

@@ -54,7 +54,7 @@ public class NewTaskActivity extends AppCompatActivity {
     private String group;
     private String currentSubject;
     private String subject;
-    private String title=new String();
+    private String title= "";
     private String displayDate;
     private EditText editText;
 
@@ -64,7 +64,7 @@ public class NewTaskActivity extends AppCompatActivity {
     private boolean isFirstOpenDatePicker = true;
     private long previousDayInMillis;
     private long targetDayInMillis;
-    private long currentNotificationId;
+    private int currentNotificationId;
 
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private long mBackPressed;
@@ -365,18 +365,18 @@ public class NewTaskActivity extends AppCompatActivity {
         if (mode==1)
         {
             SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
-            currentNotificationId = prefs.getLong("maxNotificationId", 0);
+            currentNotificationId = prefs.getInt("maxNotificationId", 0);
             currentNotificationId++;
-            prefs.edit().putLong("maxNotificationId", currentNotificationId).commit();
+            prefs.edit().putInt("maxNotificationId", currentNotificationId).apply();
         }
 
-        if (mode==2) currentNotificationId = Long.parseLong(currentTask.get(4));
+        if (mode==2) currentNotificationId = Integer.parseInt(currentTask.get(4));
 
         Intent notificationIntent = new Intent(this, AlarmAdapter.class);
         notificationIntent.putExtra(AlarmAdapter.NOTIFICATION_ID, currentNotificationId);
         notificationIntent.putExtra(AlarmAdapter.NOTIFICATION, notification);
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, currentNotificationId, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         long futureInMillis = previousDayInMillis + 60000;
 
@@ -396,6 +396,14 @@ public class NewTaskActivity extends AppCompatActivity {
         }
         else return builder.getNotification();
 
+    }
+
+    public static void deleteNotification(Context context, int currentNotiId)
+    {
+        Intent notificationIntent = new Intent(context, AlarmAdapter.class);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, currentNotiId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
     }
 
     @Override

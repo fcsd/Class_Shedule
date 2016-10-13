@@ -39,9 +39,6 @@ import derpyhooves.dipvlom.R;
 
 public class SubjectActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     SectionedRecyclerViewAdapter mSectionedAdapter;
 
     ArrayList<String> currentSubject = new ArrayList();
@@ -136,21 +133,20 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
 
     public void showTasks()
     {
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new CardAdapter(this, new CardAdapter.MyClickListener(){
+        RecyclerView.Adapter mAdapter = new CardAdapter(this, new CardAdapter.MyClickListener() {
             @Override
-            public void onItemClick(int position){
-                position=mSectionedAdapter.sectionedPositionToPosition(position);
-                if (position!=0)
-                {
+            public void onItemClick(int position) {
+                position = mSectionedAdapter.sectionedPositionToPosition(position);
+                if (position != 0) {
                     Intent intent = new Intent(getApplicationContext(), NewTaskActivity.class);
                     ArrayList<String> selectedTask = new ArrayList<>();
-                    selectedTask.addAll(currentSubject.subList(position*5,position*5+5));
+                    selectedTask.addAll(currentSubject.subList(position * 5, position * 5 + 5));
 
                     intent.putExtra("tasks", selectedTask);
-                    intent.putExtra("position", position-1);
+                    intent.putExtra("position", position - 1);
                     intent.putExtra("mode", 2);
                     startActivityForResult(intent, REQUEST_EDIT_TASK);
                 }
@@ -231,11 +227,7 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
                             for (int i=0; i<5; i++)
                             {
                                 currentSubject.remove(position*5);
-                                if (i==4)
-                                {
-                                    NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-                                    notificationManager.cancel(Integer.parseInt(tasks.get(j)));
-                                }
+                                if (i==4) NewTaskActivity.deleteNotification(getApplicationContext(),Integer.parseInt(tasks.get(j)));
                                 tasks.remove(j);
                             }
                             break;

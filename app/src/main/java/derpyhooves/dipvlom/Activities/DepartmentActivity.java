@@ -20,12 +20,7 @@ import derpyhooves.dipvlom.R;
 public class DepartmentActivity extends AppCompatActivity implements RecyclerAdapter.MyClickListenerDA,
         NavigationView.OnNavigationItemSelectedListener {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     DrawerLayout drawer;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +47,7 @@ public class DepartmentActivity extends AppCompatActivity implements RecyclerAda
         }
 
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view1);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view1);
 
 
         // если мы уверены, что изменения в контенте не изменят размер layout-а RecyclerView
@@ -62,7 +57,7 @@ public class DepartmentActivity extends AppCompatActivity implements RecyclerAda
 
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new RecyclerAdapter(getApplicationContext(),this, getDataSet());
+        RecyclerView.Adapter mAdapter = new RecyclerAdapter(getApplicationContext(), this, getDataSet());
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -91,8 +86,7 @@ public class DepartmentActivity extends AppCompatActivity implements RecyclerAda
 
 
     private String[] getDataSet() {
-        String[] mDataSet = getResources().getStringArray(R.array.listOfFaq);
-        return mDataSet;
+        return getResources().getStringArray(R.array.listOfFaq);
     }
 
     @Override

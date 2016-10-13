@@ -18,20 +18,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import derpyhooves.dipvlom.Adapters.RecyclerAdapter;
 import derpyhooves.dipvlom.Adapters.SectionedRecyclerViewAdapter;
@@ -49,16 +42,13 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
     private ArrayList<String> getNames = new ArrayList<>();
     private ArrayList<String> getLinks = new ArrayList<>();
-
-    private ArrayList[] savedNames = new ArrayList[19];
-    private ArrayList[] savedLinks = new ArrayList[19];
-
-    private ArrayList<Integer> view = new ArrayList<>();
+    private ArrayList<String> indexOfCourses = new ArrayList<>();
 
     DrawerLayout drawer;
 
     private ProgressDialog dialog;
     private int count_processFinish;
+    private boolean isLoadingSuccess;
 
     SectionedRecyclerViewAdapter mSectionedAdapter;
 
@@ -100,22 +90,19 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
         if (prefs.contains(String.valueOf(position) + "_size")) {
 
-            savedNames[position] = restoreArrayListFromSP(getApplicationContext(), String.valueOf(position));
-            savedLinks[position] = restoreArrayListFromSP(getApplicationContext(), String.valueOf(position + 50));
-            getLinks = savedLinks[position];
-            getNames = savedNames[position];
+            getNames = restoreArrayListFromSP(getApplicationContext(), String.valueOf(position));
+            getLinks = restoreArrayListFromSP(getApplicationContext(), String.valueOf(position + 50));
+            indexOfCourses = restoreArrayListFromSP(getApplicationContext(), String.valueOf(position + 100));
 
-            mAdapter = new RecyclerAdapter(getApplicationContext(), this, savedNames[position]);
+            mAdapter = new RecyclerAdapter(getApplicationContext(), this, getNames);
 
             //This is the code to provide a sectioned list
             List<SectionedRecyclerViewAdapter.Section> sections =
                     new ArrayList<SectionedRecyclerViewAdapter.Section>();
 
-            ArrayList<Integer> indexOfCourses = getCourses(savedNames[position]);
-
             String title[] = new String[]{"Перший курс", "Другий курс", "Третій курс", "Четвертий курс", "П'ятий курс", "Шостий курс"};
             for (int i = 0; i < indexOfCourses.size(); i++)
-                sections.add(new SectionedRecyclerViewAdapter.Section(indexOfCourses.get(i), title[view.get(i)]));
+                sections.add(new SectionedRecyclerViewAdapter.Section(Integer.valueOf(indexOfCourses.get(i)), title[i]));
 
             //Add your adapter to the sectionAdapter
             SectionedRecyclerViewAdapter.Section[] dummy = new SectionedRecyclerViewAdapter.Section[sections.size()];
@@ -359,10 +346,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
             return true;
         }
         wifiInfo = cm.getActiveNetworkInfo();
-        if (wifiInfo != null && wifiInfo.isConnected()) {
-            return true;
-        }
-        return false;
+        return wifiInfo != null && wifiInfo.isConnected();
     }
 
     public static void saveArrayListToSP(Context context, ArrayList<String> list, String prefix)
@@ -381,7 +365,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
             editor.putString(prefix+"_"+i, list.get(i));
 
         editor.putInt(prefix+"_size", list.size());
-        editor.commit();
+        editor.apply();
     }
 
     public static ArrayList<String> restoreArrayListFromSP (Context context, String prefix)
@@ -402,6 +386,8 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
 
         getNames.clear();
         getLinks.clear();
+        indexOfCourses.clear();
+        indexOfCourses.add(String.valueOf(0));
 
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
@@ -409,67 +395,13 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         dialog.show();
 
         count_processFinish=0;
+        isLoadingSuccess = true;
 
         for (int i = 0; i < 6; i++) {
             jsoupAdapter mt = new jsoupAdapter(URLS[i], 1, this, this);
             mt.execute();
         }
     }
-
-
-
-    public ArrayList<Integer> getCourses(ArrayList<String> data)
-    {
-        String buf = data.get(0).toString();
-        String tmp[]=new String[2];
-        String[] s = buf.split("-");
-        tmp[0]= String.valueOf(s[1].charAt(1));
-        ArrayList<Integer> indexOfCourses = new ArrayList<>();
-        indexOfCourses.add(0);
-
-        Date date= new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int currentMonth = cal.get(Calendar.MONTH);
-        int currentYear = cal.get(Calendar.YEAR);
-        currentYear = currentYear % 10;
-        int currentCourse;
-        view.clear();
-        view.add(0);
-
-        for (int i=0; i<data.size(); i++)
-        {
-            buf=data.get(i).toString();
-            s = buf.split("-");
-
-            Pattern p = Pattern.compile("[\\p{L}]", Pattern.UNICODE_CASE);
-            Matcher m = p.matcher(s[1]);
-
-            while (m.find()) s[1]=s[1].substring(0,s[1].length()-1);
-
-            if (s[1].length()>2) tmp[1]= String.valueOf(s[1].charAt(2));
-            else tmp[1]= String.valueOf(s[1].charAt(1));
-
-            if ((tmp[0].compareTo(tmp[1]))==0) continue;
-
-            int tempCurrentYear;
-            if ((currentYear-Integer.parseInt(tmp[1])<0)) tempCurrentYear = currentYear + 10;
-            else tempCurrentYear = currentYear;
-            if (tempCurrentYear - Integer.parseInt(tmp[1])>=6) continue;
-
-            tmp[0]=tmp[1];
-            indexOfCourses.add(i);
-
-            int yearAdmision = Integer.parseInt(tmp[1]);
-            if (currentYear < yearAdmision) currentYear+=10;
-            currentCourse=currentYear-yearAdmision-1;
-            if (currentMonth>=8) currentCourse++;
-            view.add(currentCourse);
-        }
-
-        return indexOfCourses;
-    }
-
 
     @Override
     public void onItemClick(int position) {
@@ -521,23 +453,23 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
             {
                 getLinks.addAll(map.get(1));
                 getNames.addAll(map.get(2));
+                if (count_processFinish!=6) indexOfCourses.add(String.valueOf(getNames.size()));
 
-                if (count_processFinish==6)
+                if (count_processFinish==6 && isLoadingSuccess)
                 {
                     int position = getIntent().getIntExtra("position", 0);
 
                     saveArrayListToSP(this, getNames, String.valueOf(position));
                     saveArrayListToSP(this, getLinks, String.valueOf(position + 50));
+                    saveArrayListToSP(this, indexOfCourses, String.valueOf(position + 100));
 
                     mAdapter = new RecyclerAdapter(this, this, getNames);
                     List<SectionedRecyclerViewAdapter.Section> sections =
                             new ArrayList<SectionedRecyclerViewAdapter.Section>();
 
-                    ArrayList<Integer> indexOfCourses = getCourses(getNames);
-
                     String title[] = new String[]{"Перший курс", "Другий курс", "Третій курс", "Четвертий курс", "П'ятий курс", "Шостий курс"};
                     for (int i = 0; i < indexOfCourses.size(); i++)
-                        sections.add(new SectionedRecyclerViewAdapter.Section(indexOfCourses.get(i), title[view.get(i)]));
+                        sections.add(new SectionedRecyclerViewAdapter.Section(Integer.valueOf(indexOfCourses.get(i)), title[i]));
 
                     //Add your adapter to the sectionAdapter
                     SectionedRecyclerViewAdapter.Section[] dummy = new SectionedRecyclerViewAdapter.Section[sections.size()];
@@ -558,10 +490,13 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
             }
         }
 
-        else if (count_processFinish==6)
+        else isLoadingSuccess = false;
+
+        if (count_processFinish==6 && !isLoadingSuccess)
         {
             Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
             dialog.dismiss();
+            mRecyclerView.setAdapter(null);
             count_processFinish=0;
         }
     }

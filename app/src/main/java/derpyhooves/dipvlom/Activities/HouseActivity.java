@@ -34,8 +34,7 @@ import derpyhooves.dipvlom.Fragments.ShowHouseInfoFragment;
 import derpyhooves.dipvlom.Fragments.ShowHouseMapFragment;
 import derpyhooves.dipvlom.R;
 
-public class HouseActivity extends AppCompatActivity implements ShowHouseInfoFragment.OnFragmentInteractionListener,
-        ShowHouseMapFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener {
+public class HouseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     ArrayList<Spannable> infoFromCurrentHouse = new ArrayList<>();
     private String title;
@@ -401,10 +400,6 @@ public class HouseActivity extends AppCompatActivity implements ShowHouseInfoFra
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {

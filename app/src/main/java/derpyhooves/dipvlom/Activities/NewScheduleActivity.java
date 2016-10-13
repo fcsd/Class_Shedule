@@ -50,14 +50,13 @@ public class NewScheduleActivity extends AppCompatActivity  {
     private int DayPosition;
     private String Subject;
     private String group;
-    private String House = new String();
+    private String House = "";
     private String type;
     ArrayList<String> textTimeFor1 = new ArrayList<>();
 
     private boolean isNewSubjectAdd = false;
     private boolean isFirstCallGetSubject = true;
     private boolean isFirstCallGetHouse = true;
-    private boolean isCancelPressed;
 
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private long mBackPressed;
@@ -233,7 +232,7 @@ public class NewScheduleActivity extends AppCompatActivity  {
     }
 
     private String toNormalTime(int time) {
-        String normalTime = new String();
+        String normalTime = "";
         switch (time) {
             case 0:
                 normalTime = "8.30 — 10.05";
@@ -454,7 +453,7 @@ public class NewScheduleActivity extends AppCompatActivity  {
         final Spinner forSubject = (Spinner) findViewById(R.id.spinner3);
 
         final int[] positions = new int[2];
-        final String[] newSubject = {new String()};
+        final String[] newSubject = {""};
 
         forSubject.setAdapter(adapterForSubject);
 
@@ -570,7 +569,6 @@ public class NewScheduleActivity extends AppCompatActivity  {
             public void onItemSelected(AdapterView<?> parent, final View view,
                                        final int position, long id) {
 
-                isCancelPressed = false;
                 if (isFirstCallGetHouse) isFirstCallGetHouse=false;
 
                 else House = getShortHouse(shmi.get(position));
@@ -682,7 +680,7 @@ public class NewScheduleActivity extends AppCompatActivity  {
 
     public String getShortHouse(String data)
     {
-        String shortName=new String();
+        String shortName= "";
         switch(data)
         {
             case "Адміністративний корпус":

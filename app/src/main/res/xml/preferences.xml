@@ -21,4 +21,34 @@
 
     </derpyhooves.dipvlom.Adapters.PreferencesCategoryTitle>
 
+    <derpyhooves.dipvlom.Adapters.PreferencesCategoryTitle
+        android:key="notification"
+        android:title="ПОВІДОМЛЕННЯ">
+
+        <SwitchPreference
+            android:key="vibrate"
+            android:title="Вібрація">
+        </SwitchPreference>
+
+        <SwitchPreference
+            android:key="sound"
+            android:title="Звук">
+        </SwitchPreference>
+
+    </derpyhooves.dipvlom.Adapters.PreferencesCategoryTitle>
+
+    <derpyhooves.dipvlom.Adapters.PreferencesCategoryTitle
+        android:key="tasks"
+        android:title="ЗАВДАННЯ">
+
+        <ListPreference
+            android:entries="@array/tasksDeleteDescription"
+            android:entryValues="@array/tasksDeleteValues"
+            android:key="deleteTasks"
+            android:summary="Автоматичне видалення завдання після його виконання"
+            android:title="Видалення завдання"
+            android:defaultValue="0"/>
+
+    </derpyhooves.dipvlom.Adapters.PreferencesCategoryTitle>
+
 </PreferenceScreen>

@@ -103,7 +103,6 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
         tasks=GroupActivity.restoreArrayListFromSP(this,"listOfTasks");
         currentSubject.clear();
         currentSubject.addAll(getSubject);
-        currentSubject.add("");
 
         for(int i=1;i<tasks.size();i+=5)
         {
@@ -158,7 +157,7 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
             }
 
 
-        }, currentSubject, false, true);
+        }, currentSubject, false, true, true);
 
         List<SectionedRecyclerViewAdapter.Section> sections =
                 new ArrayList<SectionedRecyclerViewAdapter.Section>();
@@ -342,6 +341,36 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    public void getCurrentTeacher()
+    {
+        ArrayList<String> listOfSavedKathedras;
+        boolean isTeacherContains=false;
+        listOfSavedKathedras = GroupActivity.restoreArrayListFromSP(getApplicationContext(), "savedKathedras");
+        for (int i=0;i<listOfSavedKathedras.size();i++)
+        {
+            ArrayList<String> shortTeachersNames;
+            shortTeachersNames = GroupActivity.restoreArrayListFromSP(getApplicationContext(),listOfSavedKathedras.get(i)+"short");
+            {
+                if (shortTeachersNames.contains(currentSubject.get(4)))
+                {
+                    isTeacherContains=true;
+                    ArrayList<String> TeacherNames;
+                    ArrayList<String> TeacherLinks;
+                    int position = shortTeachersNames.indexOf(currentSubject.get(4));
+                    TeacherNames = GroupActivity.restoreArrayListFromSP(getApplicationContext(),listOfSavedKathedras.get(i));
+                    TeacherLinks = GroupActivity.restoreArrayListFromSP(getApplicationContext(),listOfSavedKathedras.get(i)+"links");
+
+                    Intent intent = new Intent(getApplicationContext(), InfoTeacherActivity.class);
+                    intent.putExtra("TeacherName", TeacherNames.get(position));
+                    intent.putExtra("TeacherLink", TeacherLinks.get(position));
+                    startActivity(intent);
+                }
+            }
+        }
+
+        if (!isTeacherContains) Toast.makeText(this, "Неможливо подивитись інформацію про поточного викладача!", Toast.LENGTH_LONG).show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -358,6 +387,11 @@ public class SubjectActivity extends AppCompatActivity implements NavigationView
             case R.id.subject_map:
                // MAP
                 getCurrentHouse();
+                return true;
+
+            case R.id.teacher:
+                // TEACHER
+                getCurrentTeacher();
                 return true;
 
             case R.id.subject_task:

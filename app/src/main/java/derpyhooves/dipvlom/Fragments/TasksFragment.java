@@ -83,7 +83,7 @@ public class TasksFragment extends Fragment {
             }
 
 
-        }, tasks, true, false);
+        }, tasks, true, false, false);
 
         mRecyclerView.setAdapter(mAdapter);
 

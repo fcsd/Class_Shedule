@@ -60,7 +60,7 @@ public class ScheduleFragment extends Fragment {
             public void onItemClick(int position) {
 
                 ArrayList<String> selectedSubject = new ArrayList<>();
-                selectedSubject.addAll(mData.subList(position * 4, position * 4 + 4));
+                selectedSubject.addAll(mData.subList(position * 5, position * 5 + 5));
 
                 Intent intent = new Intent(getActivity(), SubjectActivity.class);
                 intent.putExtra("subject", selectedSubject);
@@ -75,7 +75,7 @@ public class ScheduleFragment extends Fragment {
             }
 
 
-        }, mData, false, false);
+        }, mData, false, false, true);
         mRecyclerView.setAdapter(mAdapter);
 
         // Inflate the layout for this fragment

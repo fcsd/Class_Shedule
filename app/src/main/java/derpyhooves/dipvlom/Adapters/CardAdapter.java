@@ -27,9 +27,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     GestureDetector mGestureDetector;
     private boolean mIsTasksFragment;
     private boolean mIsSubjectActivity;
+    private boolean mIsScheduleActivity;
 
     public CardAdapter(Context context, MyClickListener listener, ArrayList<String> myDataset, boolean isTasksFragment,
-                       boolean isSubjectActivity) {
+                       boolean isSubjectActivity, boolean isScheduleActivity) {
         mDataset = myDataset;
         myClickListener = listener;
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
@@ -40,6 +41,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         });
         mIsTasksFragment = isTasksFragment;
         mIsSubjectActivity = isSubjectActivity;
+        mIsScheduleActivity = isScheduleActivity;
 
     }
 
@@ -47,31 +49,44 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (!mIsTasksFragment && !mIsSubjectActivity) {
+        if (!mIsTasksFragment && !mIsSubjectActivity && !mIsScheduleActivity) {
             position=position*4;
             holder.location.setText(mDataset.get(position+2));
         }
 
-        if (!mIsTasksFragment && mIsSubjectActivity) {
-            position=position*5;
-            if (position==0) holder.location.setText(mDataset.get(position+2));
-            else holder.location.setText(getStringDate(mDataset.get(position+2)));
+        if (!mIsTasksFragment && mIsSubjectActivity && mIsScheduleActivity) {
+            position = position * 5;
+            if (position==0)
+            {
+                holder.location.setText(mDataset.get(position+2));
+                holder.teacher.setText(mDataset.get(position+4));
+            }
+            else
+            {
+                holder.location.setText(getStringDate(mDataset.get(position+2)));
+                holder.teacher.setText("");
+            }
         }
 
-        if (mIsTasksFragment && !mIsSubjectActivity) {
+        if (mIsTasksFragment && !mIsSubjectActivity && !mIsScheduleActivity) {
             position=position*5;
             holder.location.setText(getStringDate(mDataset.get(position+2)));
         }
 
+        if (!mIsSubjectActivity && mIsScheduleActivity) {
+            position = position * 5;
+            holder.location.setText(mDataset.get(position+2));
+            holder.teacher.setText(mDataset.get(position+4));
+        }
+
         holder.time.setText(mDataset.get(position));
         holder.subject.setText(mDataset.get(position+1));
-
         holder.type.setText(mDataset.get(position+3));
     }
 
     @Override
     public int getItemCount() {
-        if (!mIsTasksFragment && !mIsSubjectActivity) return mDataset.size()/4;
+        if (!mIsTasksFragment && !mIsSubjectActivity && !mIsScheduleActivity) return mDataset.size()/4;
         else return mDataset.size()/5;
     }
 
@@ -93,19 +108,19 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
      class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        TextView time;
-        TextView location;
-        TextView subject;
-        TextView type;
-        CardView card_view;
-
+         TextView time;
+         TextView location;
+         TextView subject;
+         TextView type;
+         TextView teacher;
+         CardView card_view;
 
 
         public ViewHolder(View itemView) {
 
             super(itemView);
-
             card_view = (CardView)itemView.findViewById(R.id.my_card_view);
+            if (mIsScheduleActivity) teacher = (TextView) itemView.findViewById(R.id.teacher);
             time = (TextView) itemView.findViewById(R.id.time);
             location = (TextView) itemView.findViewById(R.id.location);
             subject = (TextView) itemView.findViewById(R.id.subject);
@@ -132,8 +147,11 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent,
                                                int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
+        View v;
+        if (!mIsScheduleActivity) v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_view_layout, parent, false);
+        else v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.card_view_layout_schedule, parent, false);
 
         final ViewHolder vh = new ViewHolder(v);
 

@@ -2,6 +2,7 @@ package derpyhooves.dipvlom.Activities;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -80,8 +82,6 @@ public class ScheduleActivity extends AppCompatActivity implements
             scheduleForFirstWeek = map.get(1);
             scheduleForSecondWeek = map.get(2);
             type=map.get(3);
-            showSchedule(scheduleForFirstWeek);
-            setupViewPager();
 
             if (isUpdateSchedule)
             {
@@ -103,6 +103,10 @@ public class ScheduleActivity extends AppCompatActivity implements
             prefs.edit().putInt(group + "ref", currentDayOfYear).apply();
             isLoadingSucess = true;
             invalidateOptionsMenu();
+
+            showSchedule(scheduleForFirstWeek);
+            showSchedule(scheduleForSecondWeek);
+            setupViewPager();
 
         }
         else
@@ -137,12 +141,12 @@ public class ScheduleActivity extends AppCompatActivity implements
         mSpinner = new Spinner(getSupportActionBar().getThemedContext());
         String[] frags = getResources().getStringArray(R.array.weeks);
 
-        ArrayAdapter mAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_dropdown_item, R.id.text1, frags);
+        ArrayAdapter mAdapter = new ArrayAdapter<>(this, R.layout.spinner_dropdown_item, R.id.text1, frags);
 
         mAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        mSpinner.setAdapter(mAdapter);
 
         mSpinner.setOnItemSelectedListener(this);
+        mSpinner.setAdapter(mAdapter);
         toolbar.addView(mSpinner);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -214,6 +218,8 @@ public class ScheduleActivity extends AppCompatActivity implements
         }
 
         viewPager = (ViewPager) findViewById(R.id.pager);
+        setupViewPager();
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
@@ -239,7 +245,7 @@ public class ScheduleActivity extends AppCompatActivity implements
 
         if(GroupActivity.hasConnection(this))
         {
-            jsoupAdapter mt = new jsoupAdapter(link, 2, this, this);
+            jsoupAdapter mt = new jsoupAdapter(link, 2, this, this, false);
             mt.execute();
         }
         else
@@ -252,8 +258,9 @@ public class ScheduleActivity extends AppCompatActivity implements
 
     public void everyDayUpdateSchedule()
     {
-        //invalidateOptionsMenu();
-        jsoupAdapter mt = new jsoupAdapter(link, 2, this, this);
+        Intent intent = new Intent(getApplicationContext(), jsoupAdapter.class);
+        intent.putExtra("everyDayUpdate", true);
+        jsoupAdapter mt = new jsoupAdapter(link, 2, this, this, true);
         mt.execute();
     }
 
@@ -423,51 +430,69 @@ public class ScheduleActivity extends AppCompatActivity implements
 
     public void deleteSchedule()
     {
-        ArrayList<String> keysOfSavedSchedule;
-        ArrayList<String> keysOfSavedScheduleAutumSpring;
-        ArrayList<String> linksOfSavedSchedule;
-        SharedPreferences prefs = this.getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
-        prefs.edit().remove(group+"_size").apply();
-        prefs.edit().remove(group+"ref").apply();
 
-        keysOfSavedSchedule=GroupActivity.restoreArrayListFromSP(this,"keysOfGroup");
-        int removeIndex=keysOfSavedSchedule.indexOf(group);
-        keysOfSavedSchedule.remove(group);
-        GroupActivity.saveArrayListToSP(this,keysOfSavedSchedule,"keysOfGroup");
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
 
-        keysOfSavedScheduleAutumSpring=GroupActivity.restoreArrayListFromSP(this,"typesOfGroup");
-        keysOfSavedScheduleAutumSpring.remove(removeIndex);
-        GroupActivity.saveArrayListToSP(this,keysOfSavedScheduleAutumSpring,"typesOfGroup");
+                        ArrayList<String> keysOfSavedSchedule;
+                        ArrayList<String> keysOfSavedScheduleAutumSpring;
+                        ArrayList<String> linksOfSavedSchedule;
+                        SharedPreferences prefs = getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
+                        prefs.edit().remove(group+"_size").apply();
+                        prefs.edit().remove(group+"ref").apply();
 
-        linksOfSavedSchedule=GroupActivity.restoreArrayListFromSP(this,"linksOfGroup");
-        linksOfSavedSchedule.remove(removeIndex);
-        GroupActivity.saveArrayListToSP(this,linksOfSavedSchedule,"linksOfGroup");
+                        keysOfSavedSchedule=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"keysOfGroup");
+                        int removeIndex=keysOfSavedSchedule.indexOf(group);
+                        keysOfSavedSchedule.remove(group);
+                        GroupActivity.saveArrayListToSP(getApplicationContext(),keysOfSavedSchedule,"keysOfGroup");
 
-        if(group.contains(prefs.getString("myGroup", "defaultStringIfNothingFound"))) prefs.edit().remove("isMyGroupSaved").apply();
+                        keysOfSavedScheduleAutumSpring=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"typesOfGroup");
+                        keysOfSavedScheduleAutumSpring.remove(removeIndex);
+                        GroupActivity.saveArrayListToSP(getApplicationContext(),keysOfSavedScheduleAutumSpring,"typesOfGroup");
 
-        isCurrentGroupSaved=false;
+                        linksOfSavedSchedule=GroupActivity.restoreArrayListFromSP(getApplicationContext(),"linksOfGroup");
+                        linksOfSavedSchedule.remove(removeIndex);
+                        GroupActivity.saveArrayListToSP(getApplicationContext(),linksOfSavedSchedule,"linksOfGroup");
 
-        ArrayList<String> tasks = GroupActivity.restoreArrayListFromSP(this, "listOfTasks");
-        for (int i = 0; i< tasks.size(); i+=5)
-        {
-            if (tasks.get(i).equals(group))
-            {
-                for (int j=0;j<5;j++)
-                {
-                    if (j==4) NewTaskActivity.deleteNotification(getApplicationContext(),Integer.parseInt(tasks.get(i*5)));
-                    tasks.remove(i*5);
+                        if(group.contains(prefs.getString("myGroup", "defaultStringIfNothingFound"))) prefs.edit().remove("isMyGroupSaved").apply();
+
+                        isCurrentGroupSaved=false;
+
+                        ArrayList<String> tasks = GroupActivity.restoreArrayListFromSP(getApplicationContext(), "listOfTasks");
+                        for (int i = 0; i< tasks.size(); i+=5)
+                        {
+                            if (tasks.get(i).equals(group))
+                            {
+                                for (int j=0;j<5;j++)
+                                {
+                                    if (j==4) NewTaskActivity.deleteNotification(getApplicationContext(),Integer.parseInt(tasks.get(i*5)));
+                                    tasks.remove(i*5);
+                                }
+                                i-=5;
+                            }
+                        }
+                        GroupActivity.saveArrayListToSP(getApplicationContext(), tasks,"listOfTasks");
+                        Toast.makeText(getApplicationContext(), "Розклад був успішно видален!", Toast.LENGTH_LONG).show();
+
+                        Intent intent=new Intent();
+                        setResult(RESULT_OK, intent);
+
+                        finish();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
                 }
-                i-=5;
             }
-        }
-        GroupActivity.saveArrayListToSP(this, tasks,"listOfTasks");
+        };
 
-        Toast.makeText(this, "Розклад був успішно видален!", Toast.LENGTH_LONG).show();
-
-        Intent intent=new Intent();
-        setResult(RESULT_OK, intent);
-
-        finish();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Ви впевнені, що бажаєте видалити розклад?").setPositiveButton("Так", dialogClickListener)
+                .setNegativeButton("Ні", dialogClickListener).setCancelable(false).show();
     }
 
     private void editSchedule()
@@ -488,6 +513,8 @@ public class ScheduleActivity extends AppCompatActivity implements
                 allSchedule=GroupActivity.restoreArrayListFromSP(this,group);
                 for (int i=0; i<allSchedule.size()/2; i++) scheduleForFirstWeek.add(allSchedule.get(i));
                 for (int i=allSchedule.size()/2; i<allSchedule.size(); i++) scheduleForSecondWeek.add(allSchedule.get(i));
+                showSchedule(scheduleForFirstWeek);
+                showSchedule(scheduleForSecondWeek);
                 setupViewPager();
             }
         }
@@ -570,6 +597,7 @@ public class ScheduleActivity extends AppCompatActivity implements
             dayOfWeek-=2;
             mSpinner.setSelection(getCurrentWeek());
         }
+
         return dayOfWeek;
     }
 
@@ -595,19 +623,19 @@ public class ScheduleActivity extends AppCompatActivity implements
         thursday.clear();
         friday.clear();
 
-        for (int i = 0; i < data.size(); i += 16) {
+        for (int i = 0; i < data.size(); i += 21) {
             monday.add(data.get(i));
             tuesday.add(data.get(i));
             wednesday.add(data.get(i));
             thursday.add(data.get(i));
             friday.add(data.get(i));
 
-            for (int j = i + 1; j < i + 4; j++) {
+            for (int j = i + 1; j < i + 5; j++) {
                 monday.add(data.get(j));
-                tuesday.add(data.get(j + 3));
-                wednesday.add(data.get(j + 6));
-                thursday.add(data.get(j + 9));
-                friday.add(data.get(j + 12));
+                tuesday.add(data.get(j + 4));
+                wednesday.add(data.get(j + 8));
+                thursday.add(data.get(j + 12));
+                friday.add(data.get(j + 16));
             }
         }
     }
@@ -623,12 +651,12 @@ public class ScheduleActivity extends AppCompatActivity implements
     }
 
     public void removeEmptyStudy(ArrayList<String> data) {
-        for (int i = 0; i < data.size(); i += 4) {
+        for (int i = 0; i < data.size(); i += 5) {
             if (data.get(i + 1) == "") {
-                for (int j = 0; j < 4; j++) {
+                for (int j = 0; j < 5; j++) {
                     data.remove(i);
                 }
-                i -= 4;
+                i -= 5;
             }
         }
     }

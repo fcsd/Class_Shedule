@@ -141,7 +141,7 @@ public class InfoTeacherActivity extends AppCompatActivity implements Navigation
     public void showTeachers() {
         if (GroupActivity.hasConnection(getApplicationContext())) {
 
-            jsoupAdapter mt = new jsoupAdapter(TeacherLink, 4, this, this);
+            jsoupAdapter mt = new jsoupAdapter(TeacherLink, 4, this, this, false);
             mt.execute();
 
         }

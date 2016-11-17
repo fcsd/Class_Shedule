@@ -38,6 +38,7 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
     private String kathedra;
     private ArrayList<String> TeacherLinks = new ArrayList<>();
     private ArrayList<String> TeacherNames = new ArrayList<>();
+    private ArrayList<String> shortTeachersNames = new ArrayList<>();
 
     DrawerLayout drawer;
 
@@ -78,9 +79,8 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
         String shmi=PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(kathedra, "defaultStringIfNothingFound");
         if (shmi.equals(kathedra))
         {
-            TeacherNames = GroupActivity.restoreArrayListFromSP(getApplicationContext(), String.valueOf(position + 1000));
-            TeacherLinks = GroupActivity.restoreArrayListFromSP(getApplicationContext(), String.valueOf(position + 1050));
-
+            TeacherNames = GroupActivity.restoreArrayListFromSP(getApplicationContext(), kathedra);
+            TeacherLinks = GroupActivity.restoreArrayListFromSP(getApplicationContext(), kathedra+"links");
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             mAdapter = new RecyclerAdapter(getApplicationContext(),this,TeacherNames);
             mRecyclerView.setAdapter(mAdapter);
@@ -107,7 +107,7 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
 
     public void showTeachers()
     {
-        jsoupAdapter mt = new jsoupAdapter(URLS[0], 3, this, this);
+        jsoupAdapter mt = new jsoupAdapter(URLS[0], 3, this, this, false);
         mt.execute();
     }
 
@@ -154,14 +154,35 @@ public class TeachersActivity extends AppCompatActivity implements RecyclerAdapt
             TeacherNames=map.get(2);
 
             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(kathedra, kathedra).commit();
-            GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherNames, String.valueOf(position + 1000));
-            GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherLinks, String.valueOf(position + 1050));
 
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             mAdapter = new RecyclerAdapter(getApplicationContext(),this,TeacherNames);
             mRecyclerView.setAdapter(mAdapter);
+            getShortTeacherNames();
+
         }
         else Toast.makeText(this, "Під час завантаження зникло з'єднання з інтернетом!", Toast.LENGTH_LONG).show();
 
+    }
+
+    public void getShortTeacherNames()
+    {
+        for (int i=0; i<TeacherNames.size();i++)
+        {
+            String replace[];
+            replace = TeacherNames.get(i).split(" ");
+            replace[1]=replace[1].substring(0,1);
+            replace[2]=replace[2].substring(0,1);
+            shortTeachersNames.add(replace[0]+" "+replace[1]+" "+replace[2]);
+        }
+
+        ArrayList<String> listOfSavedKathedras;
+        listOfSavedKathedras = GroupActivity.restoreArrayListFromSP(getApplicationContext(), "savedKathedras");
+        listOfSavedKathedras.add(kathedra);
+        GroupActivity.saveArrayListToSP(getApplicationContext(), listOfSavedKathedras, "savedKathedras");
+
+        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherNames, kathedra);
+        GroupActivity.saveArrayListToSP(getApplicationContext(), shortTeachersNames, kathedra + "short");
+        GroupActivity.saveArrayListToSP(getApplicationContext(), TeacherLinks, kathedra + "links");
     }
 }

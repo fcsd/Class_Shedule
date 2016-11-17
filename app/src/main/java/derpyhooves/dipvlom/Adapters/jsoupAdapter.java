@@ -12,6 +12,8 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,15 +28,17 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
     private int m_mode;
     private ProgressDialog dialog;
     private Activity activity;
+    private boolean isEveryDayUpdate;
 
     public AsyncResponse delegate = null;
 
 
-    public jsoupAdapter(String URL, int mode, Activity activity, AsyncResponse delegate) {
+    public jsoupAdapter(String URL, int mode, Activity activity, AsyncResponse delegate, boolean isEveryDayUpdate) {
         mURL = URL;
         m_mode = mode;
         this.delegate = delegate;
         this.activity=activity;
+        this.isEveryDayUpdate=isEveryDayUpdate;
     }
 
     @Override
@@ -44,7 +48,8 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
         {
             dialog = new ProgressDialog(activity);
             dialog.setCancelable(false);
-            dialog.setMessage("Завантаження...");
+            if(isEveryDayUpdate) dialog.setMessage("Щоденне оновлення розкладу...");
+            else dialog.setMessage("Завантаження...");
             dialog.show();
         }
     }
@@ -54,7 +59,7 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
     protected Map<Integer, ArrayList<String>> doInBackground(Void... params) {
 
         Document doc;
-        Map<Integer, ArrayList<String>> map = new HashMap();
+        Map<Integer, ArrayList<String>> map = new HashMap<Integer, ArrayList<String>>();
 
         try {
             doc = Jsoup.connect(mURL).get();
@@ -91,22 +96,34 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
                     if (item.select("#css_time").hasText()) scheduleForFirstWeek.add(item.text());
 
                     else if (item.select("#css_lec").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_lec").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForFirstWeek.add(s[i]);
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForFirstWeek.addAll(shmi);
                     } else if (item.select("#css_sem").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_sem").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForFirstWeek.add(s[i]);
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForFirstWeek.addAll(shmi);
                     } else if (item.select("#css_lab").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_lab").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForFirstWeek.add(s[i]);
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForFirstWeek.addAll(shmi);
                     } else if (item.select("#css_pra").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_pra").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForFirstWeek.add(s[i]);
-                    } else for (int i = 0; i < 3; i++) scheduleForFirstWeek.add("");
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForFirstWeek.addAll(shmi);
+                    } else for (int i = 0; i < 4; i++) scheduleForFirstWeek.add("");
 
                 }
             }
@@ -117,22 +134,34 @@ public class jsoupAdapter extends AsyncTask<Void, Void, Map<Integer, ArrayList<S
                     if (item.select("#css_time").hasText()) scheduleForSecondWeek.add(item.text());
 
                     else if (item.select("#css_lec").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_lec").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForSecondWeek.add(s[i]);
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForSecondWeek.addAll(shmi);
                     } else if (item.select("#css_sem").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_sem").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForSecondWeek.add(s[i]);
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForSecondWeek.addAll(shmi);
                     } else if (item.select("#css_lab").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_lab").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForSecondWeek.add(s[i]);
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForSecondWeek.addAll(shmi);
                     } else if (item.select("#css_pra").hasText()) {
+                        ArrayList<String> shmi = new ArrayList<String>();
                         replace = item.select("#css_pra").html();
                         String[] s = replace.split("<br>");
-                        for (int i = 0; i < 3; i++) scheduleForSecondWeek.add(s[i]);
-                    } else for (int i = 0; i < 3; i++) scheduleForSecondWeek.add("");
+                        Collections.addAll(shmi, s);
+                        if (shmi.size()==3) shmi.add("-");
+                        scheduleForSecondWeek.addAll(shmi);
+                    } else for (int i = 0; i < 4; i++) scheduleForSecondWeek.add("");
 
                 }
             }

@@ -398,7 +398,7 @@ public class GroupActivity extends AppCompatActivity implements RecyclerAdapter.
         isLoadingSuccess = true;
 
         for (int i = 0; i < 6; i++) {
-            jsoupAdapter mt = new jsoupAdapter(URLS[i], 1, this, this);
+            jsoupAdapter mt = new jsoupAdapter(URLS[i], 1, this, this, false);
             mt.execute();
         }
     }

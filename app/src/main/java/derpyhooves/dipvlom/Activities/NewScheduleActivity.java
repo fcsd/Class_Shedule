@@ -52,7 +52,9 @@ public class NewScheduleActivity extends AppCompatActivity  {
     private String group;
     private String House = "";
     private String type;
-    ArrayList<String> textTimeFor1 = new ArrayList<>();
+    private String teacher;
+    private ArrayList<String> textTimeFor1 = new ArrayList<>();
+    private ArrayList<String> listOfSavedKathedras = new ArrayList<>();
 
     private boolean isNewSubjectAdd = false;
     private boolean isFirstCallGetSubject = true;
@@ -62,6 +64,7 @@ public class NewScheduleActivity extends AppCompatActivity  {
     private long mBackPressed;
     private int countSave = 0;
     private int countDelete = 0;
+    private int offset = 0;
 
     private ScrollView EditShedule;
     private ScrollView DeleteShedule;
@@ -133,6 +136,7 @@ public class NewScheduleActivity extends AppCompatActivity  {
         getTime(0);
         getDay(0);
         getSubject();
+        getTeacher();
         getHouse();
         getType();
         getText();
@@ -175,26 +179,32 @@ public class NewScheduleActivity extends AppCompatActivity  {
             allHouse = title + " " + House;
             switch (WeekPosition) {
                 case 0: // обе недели
-                    allSchedule.set(TimePosition * 16, toNormalTime(TimePosition)); // установка времени
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
-                    allSchedule.set(96 + TimePosition * 16, toNormalTime(TimePosition)); // установка времени
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
+                    allSchedule.set(TimePosition * 21, toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 1, Subject); // установка предмета
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 2, allHouse); // установка аудитории
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 3, type); // установка типа занятий
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 4, teacher); // установка преподавателя
+
+                    allSchedule.set(126 + TimePosition * 21, toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 1, Subject); // установка предмета
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 2, allHouse); // установка аудитории
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 3, type); // установка типа занятий
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 4, teacher); // установка преподавателя
+
                     break;
                 case 1: // первая неделя
-                    allSchedule.set(TimePosition * 16, toNormalTime(TimePosition)); // установка времени
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
-                    allSchedule.set(TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
+                    allSchedule.set(TimePosition * 21, toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 1, Subject); // установка предмета
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 2, allHouse); // установка аудитории
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 3, type); // установка типа занятий
+                    allSchedule.set(TimePosition * 21 + DayPosition * 4 + 4, teacher); // установка преподавателя
                     break;
                 case 2: // вторая неделя
-                    allSchedule.set(96 + TimePosition * 16, toNormalTime(TimePosition)); // установка времени
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 1, Subject); // установка предмета
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 2, allHouse); // установка аудитории
-                    allSchedule.set(96 + TimePosition * 16 + DayPosition * 3 + 3, type); // установка типа занятий
+                    allSchedule.set(126 + TimePosition * 21, toNormalTime(TimePosition)); // установка времени
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 1, Subject); // установка предмета
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 2, allHouse); // установка аудитории
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 3, type); // установка типа занятий
+                    allSchedule.set(126 + TimePosition * 21 + DayPosition * 4 + 4, teacher); // установка преподавателя
                     break;
             }
             countSave++;
@@ -209,20 +219,20 @@ public class NewScheduleActivity extends AppCompatActivity  {
         switch (WeekPosition)
         {
             case 0:
-                startIndexFirstWeek=TimePosition*16+DayPosition*3+1;
-                startIndexSecondWeek=TimePosition*16+DayPosition*3+97;
-                for (int i=startIndexFirstWeek;i<startIndexFirstWeek+3;i++) allSchedule.set(i,"");
-                for (int i=startIndexSecondWeek;i<startIndexSecondWeek+3;i++) allSchedule.set(i,"");
+                startIndexFirstWeek=TimePosition*21+DayPosition*4+1;
+                startIndexSecondWeek=TimePosition*21+DayPosition*4+127;
+                for (int i=startIndexFirstWeek;i<startIndexFirstWeek+4;i++) allSchedule.set(i,"");
+                for (int i=startIndexSecondWeek;i<startIndexSecondWeek+4;i++) allSchedule.set(i,"");
                 break;
 
             case 1:
-                startIndexFirstWeek=TimePosition*16+DayPosition*3+1;
-                for (int i=startIndexFirstWeek;i<startIndexFirstWeek+3;i++) allSchedule.set(i,"");
+                startIndexFirstWeek=TimePosition*21+DayPosition*4+1;
+                for (int i=startIndexFirstWeek;i<startIndexFirstWeek+4;i++) allSchedule.set(i,"");
                 break;
 
             case 2:
-                startIndexSecondWeek=TimePosition*16+DayPosition*3+97;
-                for (int i=startIndexSecondWeek;i<startIndexSecondWeek+3;i++) allSchedule.set(i,"");
+                startIndexSecondWeek=TimePosition*21+DayPosition*4+127;
+                for (int i=startIndexSecondWeek;i<startIndexSecondWeek+4;i++) allSchedule.set(i,"");
                 break;
         }
 
@@ -360,10 +370,10 @@ public class NewScheduleActivity extends AppCompatActivity  {
             ArrayList<String> currentTime = new ArrayList<>();
 
             if (DayPosition == 0) currentTime=getCurrentTime(1);
-            if (DayPosition == 1) currentTime=getCurrentTime(4);
-            if (DayPosition == 2) currentTime=getCurrentTime(7);
-            if (DayPosition == 3) currentTime=getCurrentTime(10);
-            if (DayPosition == 4) currentTime=getCurrentTime(13);
+            if (DayPosition == 1) currentTime=getCurrentTime(5);
+            if (DayPosition == 2) currentTime=getCurrentTime(9);
+            if (DayPosition == 3) currentTime=getCurrentTime(13);
+            if (DayPosition == 4) currentTime=getCurrentTime(17);
             textTimeFor1=getNormalTime(currentTime);
 
             //SPINNER FOR TIME
@@ -394,11 +404,11 @@ public class NewScheduleActivity extends AppCompatActivity  {
     public ArrayList<String> getCurrentTime(int startIndex) {
         ArrayList<String> currentSchedule = new ArrayList<>();
         ArrayList<String> currentTime = new ArrayList<>();
-        if (WeekPosition == 0) for (int i = 0; i < 192; i++) currentSchedule.add(allSchedule.get(i));
-        if (WeekPosition == 1) for (int i = 0; i < 96; i++) currentSchedule.add(allSchedule.get(i));
-        if (WeekPosition == 2) for (int i = 96; i < 192; i++) currentSchedule.add(allSchedule.get(i));
+        if (WeekPosition == 0) for (int i = 0; i < 252; i++) currentSchedule.add(allSchedule.get(i));
+        if (WeekPosition == 1) for (int i = 0; i < 126; i++) currentSchedule.add(allSchedule.get(i));
+        if (WeekPosition == 2) for (int i = 126; i < 252; i++) currentSchedule.add(allSchedule.get(i));
 
-        for (int i = startIndex; i < currentSchedule.size(); i += 16) {
+        for (int i = startIndex; i < currentSchedule.size(); i += 21) {
             if (!currentSchedule.get(i).isEmpty()) currentTime.add(currentSchedule.get(i - startIndex));
         }
         if (WeekPosition == 0) for (int i = currentTime.size() / 2; i < currentTime.size(); i++) {
@@ -440,6 +450,132 @@ public class NewScheduleActivity extends AppCompatActivity  {
         return textTime;
     }
 
+    public void getTeacher()
+    {
+        TextView textView = (TextView) findViewById(R.id.section_text15);
+        textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        listOfSavedKathedras = GroupActivity.restoreArrayListFromSP(getApplicationContext(), "savedKathedras");
+        listOfSavedKathedras.add(0, "Додати...");
+        listOfSavedKathedras.add(0, "-");
+
+        final ArrayList <String> buffer = new ArrayList<>();
+        buffer.addAll(listOfSavedKathedras);
+
+        //SPINNER FOR TEACHER
+        final ArrayAdapter<String> adapterForTeacher = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, buffer);
+        adapterForTeacher.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        final Spinner forTeacher = (Spinner) findViewById(R.id.spinner15);
+
+        final String[] newTeacher = {""};
+
+        forTeacher.setAdapter(adapterForTeacher);
+        forTeacher.setSelection(0);
+
+        // устанавливаем обработчик нажатия
+        forTeacher.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+
+                if (position==1)
+                {
+                    AlertDialog alertDialog;
+                    alertDialog = new AlertDialog.Builder(NewScheduleActivity.this).create();
+
+                    final EditText input = new EditText(NewScheduleActivity.this);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT);
+                    input.setLayoutParams(lp);
+
+                    alertDialog.setView(input);
+                    alertDialog.setTitle("Введіть викладача");
+                    alertDialog.setMessage("Введіть прізвище викладача та його ініціали без крапок. Наприклад: Іванов О А");
+                    alertDialog.setCanceledOnTouchOutside(false);
+                    input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+                            if (hasFocus) showKeyboard(v);
+                            if (!hasFocus) hideKeyboard(v);
+                        }
+                    });
+
+                    alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Додати",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    newTeacher[0] = input.getText().toString();
+                                    if (newTeacher[0].isEmpty())
+                                        Toast.makeText(getBaseContext(), "Нічого не було введено, викладач не буде доданий!", Toast.LENGTH_SHORT).show();
+
+                                    else
+                                    {
+                                        teacher=newTeacher[0];
+                                        buffer.add(offset+2,newTeacher[0]);
+                                        listOfSavedKathedras.add(offset+2,newTeacher[0]);
+                                        adapterForTeacher.notifyDataSetChanged();
+                                        forTeacher.setSelection(offset+2);
+                                        offset++;
+                                    }
+                                    input.setFocusable(false);
+                                }
+                            });
+
+                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Відмінити",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        input.setFocusable(false);
+                                        dialog.cancel();
+                                        forTeacher.setSelection(0);
+                                    }
+                                });
+                    alertDialog.show();
+                }
+
+                if (position >= offset + 2)
+                {
+                    final ArrayList<String> shortTeachersNames;
+                    final ArrayList<String> TeacherNames;
+                    shortTeachersNames = GroupActivity.restoreArrayListFromSP(getApplicationContext(),listOfSavedKathedras.get(position)+"short");
+                    TeacherNames = GroupActivity.restoreArrayListFromSP(getApplicationContext(),listOfSavedKathedras.get(position));
+                    TeacherNames.add(0, "Назад...");
+
+                    buffer.clear();
+                    buffer.addAll(TeacherNames);
+                    adapterForTeacher.notifyDataSetChanged();
+                    forTeacher.setSelection(1);
+
+                    // устанавливаем обработчик нажатия
+                    forTeacher.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, final View view,
+                                                   final int positionSecond, long id) {
+
+                            if (positionSecond==0)
+                            {
+                                buffer.clear();
+                                buffer.addAll(listOfSavedKathedras);
+                                adapterForTeacher.notifyDataSetChanged();
+                                forTeacher.setSelection(0);
+                                getTeacher();
+                            }
+                            else teacher = shortTeachersNames.get(positionSecond-1);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> arg0) {
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+    }
+
 
 
     public void getSubject()
@@ -448,7 +584,7 @@ public class NewScheduleActivity extends AppCompatActivity  {
         textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         //SPINNER FOR SUBJECT
-        ArrayAdapter<String> adapterForSubject = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ListOfSubject);
+        final ArrayAdapter<String> adapterForSubject = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ListOfSubject);
         adapterForSubject.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         final Spinner forSubject = (Spinner) findViewById(R.id.spinner3);
 
@@ -514,7 +650,8 @@ public class NewScheduleActivity extends AppCompatActivity  {
                                         Subject=newSubject[0];
                                         ListOfSubject.add(Subject);
                                         isNewSubjectAdd =true;
-                                        getSubject();
+                                        adapterForSubject.notifyDataSetChanged();
+                                        forSubject.setSelection(ListOfSubject.size());
                                     }
                                     input.setFocusable(false);
                                 }
@@ -675,7 +812,6 @@ public class NewScheduleActivity extends AppCompatActivity  {
 
             }
         });
-
     }
 
     public String getShortHouse(String data)
@@ -752,13 +888,13 @@ public class NewScheduleActivity extends AppCompatActivity  {
     {
         ArrayList<String> tmp = new ArrayList<>();
 
-        for (int i=0;i<ListOfSubject.size();i+=16)
+        for (int i=0;i<ListOfSubject.size();i+=21)
         {
             ListOfSubject.remove(i);
             i--;
         }
 
-        for (int i=0;i<ListOfSubject.size();i+=3) tmp.add(ListOfSubject.get(i));
+        for (int i=0;i<ListOfSubject.size();i+=4) tmp.add(ListOfSubject.get(i));
 
         for (int i=0;i<tmp.size()-1;i++)
         {

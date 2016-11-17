@@ -4,6 +4,14 @@
 
 
     <item
+        android:id="@+id/teacher"
+        android:icon="@drawable/teacher"
+        app:showAsAction="ifRoom"
+        android:title="Показати інформацію про викладача"
+        android:alphabeticShortcut="r"
+        android:orderInCategory="1"/>
+
+    <item
         android:id="@+id/subject_map"
         android:icon="@drawable/subject_map"
         app:showAsAction="ifRoom"

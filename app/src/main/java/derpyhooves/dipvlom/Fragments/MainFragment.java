@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -55,7 +56,6 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_main, container, false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Збережені групи");
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
@@ -68,70 +68,55 @@ public class MainFragment extends Fragment {
         ScrollView view = (ScrollView) v.findViewById(R.id.scrollViewMF);
         view.requestFocus();
 
+        checkDeleteTasks();
+
         updateGroup(isMyGroupSaved);
         return v;
     }
 
-    public ArrayList<String> saveConstantTime()
+    private void checkDeleteTasks()
     {
-        ArrayList<String> constTimeInMillis = new ArrayList<>();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        long listValue = Long.parseLong(prefs.getString("deleteTasks", "0"));
+        if (listValue!=0)
+        {
+            ArrayList<String> tasks= GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"listOfTasks");
 
-        constTimeInMillis.add(constantTimeInMillis("8:30"));
-        constTimeInMillis.add(constantTimeInMillis("10:05"));
-        constTimeInMillis.add(constantTimeInMillis("10:25"));
-        constTimeInMillis.add(constantTimeInMillis("12:00"));
-        constTimeInMillis.add(constantTimeInMillis("12:35"));
-        constTimeInMillis.add(constantTimeInMillis("14:10"));
-        constTimeInMillis.add(constantTimeInMillis("14:30"));
-        constTimeInMillis.add(constantTimeInMillis("16:05"));
-        constTimeInMillis.add(constantTimeInMillis("16:25"));
-        constTimeInMillis.add(constantTimeInMillis("18:00"));
-        constTimeInMillis.add(constantTimeInMillis("18:10"));
-        constTimeInMillis.add(constantTimeInMillis("19:45"));
+            Calendar c1 = Calendar.getInstance();
+            long currentTimeInMillis = c1.getTimeInMillis();
 
-        GroupActivity.saveArrayListToSP(getContext(),constTimeInMillis,"constTimeInMillis");
-        return constTimeInMillis;
+            for (int i=0;i<tasks.size(); i+=5)
+            {
+                if (currentTimeInMillis>=Long.parseLong(tasks.get(i+2))+listValue)
+                {
+                    for (int j=0; j<5; j++) tasks.remove(i*5);
+                    i-=5;
+                }
+            }
+            GroupActivity.saveArrayListToSP(getContext(),tasks,"listOfTasks");
+        }
     }
-
-
-    public String constantTimeInMillis (String data)
-    {
-        String[] replace=data.split(":");
-        long currentTime = Long.parseLong(replace[0]) * 60 + Long.parseLong(replace[1]);
-        return String.valueOf(currentTime);
-    }
-
 
     public void getText()
     {
-        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(MainActivity.mySharedPreferences, Context.MODE_PRIVATE);
-
         Calendar c1 = Calendar.getInstance();
-
-        long currentTime = c1.get(Calendar.HOUR_OF_DAY) * 60 + c1.get(Calendar.MINUTE);
-
-        ArrayList<String> constTimeInMillis;
-
-        if (prefs.contains("constTimeInMillis")) constTimeInMillis=GroupActivity.restoreArrayListFromSP(getActivity().getApplicationContext(),"constTimeInMillis");
-        else constTimeInMillis=saveConstantTime();
+        int currentTime = c1.get(Calendar.HOUR_OF_DAY) * 60 + c1.get(Calendar.MINUTE);
+        int[] constTimeInMillis = getResources().getIntArray(R.array.constant_time);
 
         boolean isCouple=false;
         boolean isBreak=false;
 
-        long minutesCoupleEnded = 0;
+        int minutesCoupleEnded = 0;
         int couple = 0;
 
         int dayOfWeek = c1.get(Calendar.DAY_OF_WEEK);
         if (dayOfWeek!=1 && dayOfWeek!=7)
         {
-            for (int i=0;i<constTimeInMillis.size();i+=2)
+            for (int i=0;i<constTimeInMillis.length;i+=2)
             {
-                long startTime = Long.parseLong(constTimeInMillis.get(i));
-                long endTime = Long.parseLong(constTimeInMillis.get(i+1));
-
-                if  (currentTime >= startTime && currentTime < endTime)
+                if  (currentTime >= constTimeInMillis[i] && currentTime < constTimeInMillis[i+1])
                 {
-                    minutesCoupleEnded = endTime - currentTime;
+                    minutesCoupleEnded = constTimeInMillis[i+1] - currentTime;
                     couple = i/2+1;
                     isCouple=true;
                     break;
@@ -139,10 +124,9 @@ public class MainFragment extends Fragment {
 
                 if (i!=10)
                 {
-                    long startNextCouple = Long.parseLong(constTimeInMillis.get(i+2));
-                    if  (currentTime >= endTime && currentTime < startNextCouple)
+                    if  (currentTime >= constTimeInMillis[i+1] && currentTime < constTimeInMillis[i+2])
                     {
-                        minutesCoupleEnded = startNextCouple - currentTime;
+                        minutesCoupleEnded = constTimeInMillis[i+2] - currentTime;
                         isBreak=true;
                         break;
                     }
@@ -153,7 +137,12 @@ public class MainFragment extends Fragment {
         String concateString;
         if (isCouple)
         {
-            concateString = "Триває " + couple + " пара. До завершення " + minutesCoupleEnded + " хв.";
+            if (minutesCoupleEnded>60)
+            {
+                minutesCoupleEnded-=60;
+                concateString = "Триває " + couple + " пара. До завершення 1 год. " + minutesCoupleEnded + " хв.";
+            }
+            else concateString = "Триває " + couple + " пара. До завершення " + minutesCoupleEnded + " хв.";
             textView.setText(concateString);
         }
         else if (isBreak)
@@ -173,7 +162,6 @@ public class MainFragment extends Fragment {
 
         getText();
 
-
         RecyclerView.Adapter mAdapter = new CardAdapter(getContext(), new CardAdapter.MyClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -192,7 +180,7 @@ public class MainFragment extends Fragment {
             }
 
 
-        }, viewGroup, false, false);
+        }, viewGroup, false, false, false);
 
 
         List<SectionedRecyclerViewAdapter.Section> sections =

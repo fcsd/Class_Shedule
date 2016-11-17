@@ -16,4 +16,94 @@
         <item>Видалити існуючу</item>
     </string-array>
 
+    <string-array name="listOfFaq">
+        <item>Автоматики та приладобудування</item>
+        <item>Бізнесу та фінансів</item>
+        <item>Економічний</item>
+        <item>Економічної інформатики та менеджменту</item>
+        <item>Електроенергетичний</item>
+        <item>Електромашинобудівний</item>
+        <item>Енергомашинобудівний</item>
+        <item>Інженерно-фізичний</item>
+        <item>Інтегральної підготовки</item>
+        <item>Інтегрованих технологій і хімічної техніки</item>
+        <item>Інформатики і управління</item>
+        <item>Комп`ютерних та інформаційніх технологій</item>
+        <item>Машинобудівний</item>
+        <item>Механіко-технологічний</item>
+        <item>Німецький технічний</item>
+        <item>Технології неорганічних речовин</item>
+        <item>Технології органічних речовин</item>
+        <item>Транспортного машинобудування</item>
+        <item>Фізико-технічний</item>
+    </string-array>
+
+
+    <string-array name="Housing">
+        <item>Адміністративний корпус</item>
+        <item>Вечірний корпус</item>
+        <item>Головний аудиторний корпус</item>
+        <item>Інженерний корпус</item>
+        <item>Корпус громадських організацій</item>
+        <item>Математичний корпус</item>
+        <item>Палац студентів</item>
+        <item>Радіокорпус</item>
+        <item>Ректорський корпус</item>
+        <item>Спортивний комлекс</item>
+        <item>Технічний корпус</item>
+        <item>Український корпус</item>
+        <item>Учбовий корпус №1</item>
+        <item>Учбовий корпус №2</item>
+        <item>Учбовий корпус №3</item>
+        <item>Учбовий корпус №4</item>
+        <item>Учбовий корпус №5</item>
+        <item>Фізичний корпус</item>
+        <item>Хімічний корпус</item>
+        <item>Електротехнічний корпус</item>
+    </string-array>
+
+    <string-array name="Kathedral">
+        <item>кафедра ОТП</item>
+    </string-array>
+
+    <string-array name="info">
+        <item>Developer: Alexandr \"FC Shakhtar Donetsk\" Serpokrylov</item>
+        <item>E-mail: fc.shakhtar.donetsk1995@gmail.com</item>
+        <item>Version: 1.3</item>
+        <item>Last update: 14.11.2016</item>
+    </string-array>
+
+    <string name="title_activity_maps">Map</string>
+
+    <string-array name="tasksDeleteDescription">
+        <item>Не видаляти</item>
+        <item>Через час</item>
+        <item>Через день</item>
+        <item>Через три дня</item>
+        <item>Через тиждень</item>
+    </string-array>
+
+    <string-array name="tasksDeleteValues">
+        <item>0</item>
+        <item>3600000</item>
+        <item>86400000</item>
+        <item>259200000</item>
+        <item>604800000</item>
+    </string-array>
+
+    <integer-array name="constant_time">
+        <item>510</item>
+        <item>605</item>
+        <item>625</item>
+        <item>720</item>
+        <item>755</item>
+        <item>850</item>
+        <item>870</item>
+        <item>965</item>
+        <item>985</item>
+        <item>1080</item>
+        <item>1090</item>
+        <item>1185</item>
+    </integer-array>
+
 </resources>

@@ -138,15 +138,6 @@
 
         </Spinner>
 
-        <EditText android:id="@+id/etWidth2"
-            android:hint="Введіть назву нового предмету"
-            android:inputType="textCapWords|textCapSentences|textAutoComplete|textMultiLine"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_marginLeft="13dp"
-            android:layout_marginRight="10dp"
-            />
-
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -155,6 +146,34 @@
             android:singleLine="true"
             android:textAllCaps="true"
             android:layout_below="@+id/spinner3"
+            android:text="Оберіть викладача"
+            android:background="@android:color/transparent"
+            android:textSize="18sp"
+            android:id="@+id/section_text15"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
+
+        <Spinner
+            android:id="@+id/spinner15"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/section_text15"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:textSize="18sp">
+
+        </Spinner>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:layout_below="@+id/spinner15"
             android:text="Оберіть навчальний корпус"
             android:background="@android:color/transparent"
             android:textSize="18sp"
